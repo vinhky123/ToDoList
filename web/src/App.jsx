@@ -15,6 +15,7 @@ import CategoryList from "./components/CategoryList";
 import TagList from "./components/TagList";
 import ForgetPassword from "./components/ForgetPassword";
 import ResetPassword from "./components/ResetPassword";
+import NavBar from "./assets/NavBar";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
@@ -27,22 +28,7 @@ function App() {
   return (
     <Router>
       <div className="container">
-        <nav>
-          {token ? (
-            <>
-              <Link to="/todos">Công việc</Link>
-              <Link to="/categories">Danh mục</Link>
-              <Link to="/tags">Tags</Link>
-              <button onClick={handleLogout}>Đăng xuất</button>
-            </>
-          ) : (
-            <>
-              <Link to="/login">Đăng nhập</Link>
-              <Link to="/register">Đăng ký</Link>
-              <Link to="/forget">Quên mật khẩu</Link>
-            </>
-          )}
-        </nav>
+        <NavBar token={token} handleLogout={handleLogout}></NavBar>
 
         <RouteTransition>
           <Routes>
@@ -80,10 +66,8 @@ function RouteTransition({ children }) {
     <AnimatePresence mode="wait">
       <motion.div
         key={location.pathname}
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 0 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 20 }}
-        transition={{ duration: 0.3 }}
         className="page"
       >
         {children}

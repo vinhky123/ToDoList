@@ -1,7 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Loader from "./Loader";
+import "../styles/login.css";
 
 function Login({ setToken }) {
   const [username, setUsername] = useState("");
@@ -39,7 +40,7 @@ function Login({ setToken }) {
   };
 
   return (
-    <div>
+    <div className="login-form">
       <h2>Đăng nhập</h2>
       {error && <div className="error">{error}</div>}
       {loading ? (
@@ -62,7 +63,14 @@ function Login({ setToken }) {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <button onClick={handleLogin} disabled={loading}>
+          <p style={{ margin: "10px 0px" }}>
+            <Link to="/forget">Quên mật khẩu</Link>
+          </p>
+          <button
+            className="login-button"
+            onClick={handleLogin}
+            disabled={loading}
+          >
             Đăng nhập
           </button>
         </>

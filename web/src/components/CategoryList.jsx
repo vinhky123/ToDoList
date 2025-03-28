@@ -19,7 +19,7 @@ function CategoryList() {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:5000/api/categories", {
+      const response = await axios.get("/api/categories", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setCategories(response.data);
@@ -39,7 +39,7 @@ function CategoryList() {
     setActionLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/categories",
+        "/api/categories",
         { name: newCategory },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
