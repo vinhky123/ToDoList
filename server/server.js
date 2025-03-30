@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import todoRoutes from "./routes/todos.js";
 import categoryRoutes from "./routes/categories.js";
-import tagRoutes from "./routes/tags.js";
 import logRequestResponse from "./middleware/logRequestResponse.js";
 
 dotenv.config();
@@ -44,7 +43,6 @@ app.use((req, res, next) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/todos", todoRoutes);
 app.use("/api/categories", categoryRoutes);
-app.use("/api/tags", tagRoutes);
 
 app.get("/", (req, res) => {
   res.send("Connect thành công tới backend");
