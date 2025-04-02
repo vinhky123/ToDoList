@@ -46,7 +46,7 @@ function Login({ setToken }) {
       {loading ? (
         <Loader />
       ) : (
-        <form>
+        <>
           <div className="form-group">
             <input
               type="text"
@@ -70,12 +70,13 @@ function Login({ setToken }) {
           </p>
           <button
             className="login-button"
+            type="submit"
             onClick={handleLogin}
             disabled={loading}
           >
             Đăng nhập
           </button>
-        </form>
+        </>
       )}
     </div>
   );

@@ -32,14 +32,7 @@ function App() {
       <div className="container">
         <NavBar token={token} handleLogout={handleLogout}></NavBar>
         <div className="mainPage">
-          {location.pathname !== "/login" &&
-          location.pathname !== "/register" &&
-          location.pathname !== "/forget" &&
-          location.pathname !== "/reset" ? (
-            <CategoriesList></CategoriesList>
-          ) : (
-            <></>
-          )}
+          {token ? <CategoriesList></CategoriesList> : <></>}
 
           <RouteTransition>
             <Routes>

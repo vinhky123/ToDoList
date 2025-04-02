@@ -1,256 +1,146 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
-import Loader from "./Loader";
-
-// Hàm chuyển timestamp thành định dạng ngày giờ dễ đọc
-const formatTimestamp = (timestamp) => {
-  if (!timestamp) return "Không có";
-  const date = new Date(Number(timestamp));
-  return date.toLocaleString("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-};
-
-// Hàm ghép ngày và giờ thành timestamp
-const combineDateAndTimeToTimestamp = (dateStr, timeStr) => {
-  if (!dateStr || !timeStr) return null;
-
-  // Tạo ngày từ dateStr (ví dụ: "2023-10-18")
-  const [year, month, day] = dateStr.split("-").map(Number);
-  // Tạo giờ từ timeStr (ví dụ: "14:30")
-  const [hours, minutes] = timeStr.split(":").map(Number);
-
-  // Tạo đối tượng Date (tháng trong JavaScript bắt đầu từ 0, nên trừ 1)
-  const date = new Date(year, month - 1, day, hours, minutes, 0);
-  // Trả về timestamp (mili giây)
-  return date.getTime();
-};
+import "../styles/todos.css";
 
 function TodoList() {
   const [todos, setTodos] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [tags, setTags] = useState([]);
-  const [newTodo, setNewTodo] = useState({
-    title: "",
-    category_id: "",
-    due_date: "",
-    due_time: "", // Thêm trường để lưu giờ
-    tag: "",
-  });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
+  const [newTodo, setNewTodo] = useState("");
+  const [selectedTodo, setSelectedTodo] = useState(null); // Để mở note
+  const [searchParams] = useSearchParams();
+  const categoryId = searchParams.get("category") || "default"; // Lấy category từ URL
+  const token = localStorage.getItem("token");
 
+  // Lấy todos theo category
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+    const fetchTodos = async () => {
       try {
-        const [categoriesResponse, tagsResponse] = await Promise.all([
-          axios.get("/api/categories", {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }),
-          axios.get("/api/tags", {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }),
-        ]);
-        const fetchedCategories = Array.isArray(categoriesResponse.data)
-          ? categoriesResponse.data
-          : [];
-        const fetchedTags = Array.isArray(tagsResponse.data)
-          ? tagsResponse.data
-          : [];
-        setCategories(fetchedCategories);
-        setTags(fetchedTags);
-        console.log("Fetched categories:", fetchedCategories);
-        console.log("Fetched tags:", fetchedTags);
+        const response = await axios.get(`/api/todos?category=${categoryId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setTodos(response.data || []);
       } catch (error) {
-        setError(error.response?.data?.error || "Có lỗi khi lấy dữ liệu");
-        setCategories([]);
-        setTags([]);
-      } finally {
-        setLoading(false);
+        console.error("Lỗi khi lấy todos:", error);
       }
     };
+    fetchTodos();
+  }, [categoryId, token]);
 
-    fetchData();
-  }, []);
-
-  const fetchTodos = async (categoryId) => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`/api/todos/${categoryId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      const fetchedTodos = Array.isArray(response.data) ? response.data : [];
-      setTodos(fetchedTodos);
-      console.log(`Fetched todos for category ${categoryId}:`, fetchedTodos);
-    } catch (error) {
-      setError(error.response?.data?.error || "Có lỗi khi lấy công việc");
-      setTodos([]);
-      console.log("Error fetching todos:", error.response?.data);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Thêm todo mới
   const handleAddTodo = async () => {
-    if (!newTodo.title) {
-      setError("Tiêu đề là bắt buộc");
-      return;
-    }
-    if (!newTodo.category_id) {
-      setError("Vui lòng chọn danh mục");
-      return;
-    }
-
-    setActionLoading(true);
+    if (!newTodo.trim()) return;
     try {
-      setError("");
-      // Ghép ngày và giờ thành timestamp
-      const timestamp = combineDateAndTimeToTimestamp(
-        newTodo.due_date,
-        newTodo.due_time
-      );
       const response = await axios.post(
-        `/api/todos/${newTodo.category_id}`,
-        {
-          ...newTodo,
-          due_date: timestamp, // Gửi timestamp lên backend
-        },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        "/api/todos",
+        { title: newTodo, categoryId },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setTodos([...todos, response.data]);
-      setNewTodo({
-        title: "",
-        category_id: "",
-        due_date: "",
-        due_time: "",
-        tag: "",
-      });
+      setNewTodo("");
     } catch (error) {
-      setError(error.response?.data?.error || "Có lỗi khi thêm công việc");
-    } finally {
-      setActionLoading(false);
+      console.error("Lỗi khi thêm todo:", error);
     }
   };
 
-  const handleCategoryChange = (e) => {
-    const categoryId = e.target.value;
-    setNewTodo({ ...newTodo, category_id: categoryId });
-    if (categoryId) {
-      fetchTodos(categoryId);
-    } else {
-      setTodos([]);
+  // Thêm subtask
+  const handleAddSubtask = async (todoId, subtaskTitle) => {
+    try {
+      const response = await axios.post(
+        `/api/todos/${todoId}/subtasks`,
+        { title: subtaskTitle },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setTodos(
+        todos.map((todo) =>
+          todo.id === todoId
+            ? { ...todo, subtasks: [...(todo.subtasks || []), response.data] }
+            : todo
+        )
+      );
+    } catch (error) {
+      console.error("Lỗi khi thêm subtask:", error);
     }
   };
 
   return (
-    <div>
-      <h2>Danh sách công việc</h2>
-      {error && <div className="error">{error}</div>}
-
-      {loading ? (
-        <Loader />
+    <div className="todo-container">
+      {selectedTodo ? (
+        <TodoNote todo={selectedTodo} setSelectedTodo={setSelectedTodo} />
       ) : (
         <>
-          <div className="form-group">
+          <h2>Công việc</h2>
+          <div className="todo-input">
             <input
               type="text"
-              placeholder="Tiêu đề"
-              value={newTodo.title}
-              onChange={(e) =>
-                setNewTodo({ ...newTodo, title: e.target.value })
-              }
-              disabled={actionLoading}
+              placeholder="Thêm công việc mới"
+              value={newTodo}
+              onChange={(e) => setNewTodo(e.target.value)}
             />
-            <select
-              value={newTodo.category_id}
-              onChange={handleCategoryChange}
-              disabled={actionLoading}
-            >
-              <option value="">Chọn danh mục</option>
-              {Array.isArray(categories) &&
-                categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-            </select>
-            {/* Input cho ngày */}
-            <input
-              type="date"
-              placeholder="Hạn chót (ngày)"
-              value={newTodo.due_date}
-              onChange={(e) =>
-                setNewTodo({ ...newTodo, due_date: e.target.value })
-              }
-              disabled={actionLoading}
-            />
-            {/* Input cho giờ */}
-            <input
-              type="time"
-              placeholder="Hạn chót (giờ)"
-              value={newTodo.due_time}
-              onChange={(e) =>
-                setNewTodo({ ...newTodo, due_time: e.target.value })
-              }
-              disabled={actionLoading}
-            />
-            <select
-              value={newTodo.tag}
-              onChange={(e) => setNewTodo({ ...newTodo, tag: e.target.value })}
-              disabled={actionLoading}
-            >
-              <option value="">Chọn tag (tùy chọn)</option>
-              {Array.isArray(tags) &&
-                tags.map((tag) => (
-                  <option key={tag.id} value={tag.id}>
-                    {tag.name}
-                  </option>
-                ))}
-            </select>
-            <button onClick={handleAddTodo} disabled={actionLoading}>
-              {actionLoading ? "Đang thêm..." : "Thêm"}
-            </button>
+            <button onClick={handleAddTodo}>Thêm</button>
           </div>
-
-          <div className="item-list">
-            <AnimatePresence>
-              {Array.isArray(todos) && todos.length > 0 ? (
-                todos.map((todo) => (
-                  <motion.div
-                    key={todo.id}
-                    className="todo-item"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <h3>{todo.title}</h3>
-                    <p>Danh mục: {todo.category_name || "Không có"}</p>
-                    <p>Hạn chót: {formatTimestamp(todo.due_date)}</p>
-                    <p>Tags: {todo.tags?.join(", ") || "Không có"}</p>
-                  </motion.div>
-                ))
-              ) : (
-                <p>Không có công việc nào trong danh mục này.</p>
-              )}
-            </AnimatePresence>
-          </div>
+          <ul className="todo-list">
+            {todos.map((todo) => (
+              <li key={todo.id} className="todo-item">
+                <div className="todo-content">
+                  <span>{todo.title}</span>
+                  <div className="todo-actions">
+                    <button onClick={() => setSelectedTodo(todo)}>
+                      Ghi chú
+                    </button>
+                    <button
+                      onClick={() =>
+                        handleAddSubtask(todo.id, prompt("Tên subtask:"))
+                      }
+                    >
+                      Thêm subtask
+                    </button>
+                  </div>
+                </div>
+                {todo.subtasks && (
+                  <ul className="subtask-list">
+                    {todo.subtasks.map((subtask) => (
+                      <li key={subtask.id}>{subtask.title}</li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
         </>
       )}
+    </div>
+  );
+}
+
+function TodoNote({ todo, setSelectedTodo }) {
+  const [note, setNote] = useState(todo.note || "");
+  const token = localStorage.getItem("token");
+
+  const handleSaveNote = async () => {
+    try {
+      await axios.put(
+        `/api/todos/${todo.id}`,
+        { note },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setSelectedTodo(null);
+    } catch (error) {
+      console.error("Lỗi khi lưu note:", error);
+    }
+  };
+
+  return (
+    <div className="todo-note">
+      <h2>Ghi chú cho: {todo.title}</h2>
+      <textarea
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        placeholder="Ghi chú của bạn (hỗ trợ code, text, v.v.)"
+      />
+      <div className="note-actions">
+        <button onClick={handleSaveNote}>Lưu</button>
+        <button onClick={() => setSelectedTodo(null)}>Quay lại</button>
+      </div>
     </div>
   );
 }

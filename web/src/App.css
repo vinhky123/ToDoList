@@ -46,10 +46,11 @@
 }
 
 .mainPage {
-  display: grid;
-  grid-template-columns: 10% 1fr;
+  display: flex;
+  flex-direction: row;
 }
 
 .content {
+  width: 100%;
   padding: 50px;
 }
