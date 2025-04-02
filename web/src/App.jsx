@@ -16,6 +16,8 @@ import TagList from "./components/TagList";
 import ForgetPassword from "./components/ForgetPassword";
 import ResetPassword from "./components/ResetPassword";
 import NavBar from "./assets/NavBar";
+import CategoriesList from "./assets/CategoriesList";
+import "./App.css";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
@@ -29,31 +31,33 @@ function App() {
     <Router>
       <div className="container">
         <NavBar token={token} handleLogout={handleLogout}></NavBar>
-
-        <RouteTransition>
-          <Routes>
-            <Route path="/login" element={<Login setToken={setToken} />} />
-            <Route
-              path="/register"
-              element={<Register setToken={setToken} />}
-            />
-            <Route path="/forget" element={<ForgetPassword />} />
-            <Route path="/reset" element={<ResetPassword />} />
-            <Route
-              path="/todos"
-              element={token ? <TodoList /> : <RedirectToLogin />}
-            />
-            <Route
-              path="/categories"
-              element={token ? <CategoryList /> : <RedirectToLogin />}
-            />
-            <Route
-              path="/tags"
-              element={token ? <TagList /> : <RedirectToLogin />}
-            />
-            <Route path="/" element={<Home token={token} />} />
-          </Routes>
-        </RouteTransition>
+        <div className="mainPage">
+          <CategoriesList></CategoriesList>
+          <RouteTransition>
+            <Routes>
+              <Route path="/login" element={<Login setToken={setToken} />} />
+              <Route
+                path="/register"
+                element={<Register setToken={setToken} />}
+              />
+              <Route path="/forget" element={<ForgetPassword />} />
+              <Route path="/reset" element={<ResetPassword />} />
+              <Route
+                path="/todos"
+                element={token ? <TodoList /> : <RedirectToLogin />}
+              />
+              <Route
+                path="/categories"
+                element={token ? <CategoryList /> : <RedirectToLogin />}
+              />
+              <Route
+                path="/tags"
+                element={token ? <TagList /> : <RedirectToLogin />}
+              />
+              <Route path="/" element={<Home token={token} />} />
+            </Routes>
+          </RouteTransition>
+        </div>
       </div>
     </Router>
   );
@@ -68,7 +72,7 @@ function RouteTransition({ children }) {
         key={location.pathname}
         initial={{ opacity: 0, y: 0 }}
         animate={{ opacity: 1, y: 0 }}
-        className="page"
+        className="content"
       >
         {children}
       </motion.div>

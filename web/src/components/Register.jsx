@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Loader from "./Loader";
+import "../styles/login.css";
 
 function Register({ setToken }) {
   const [username, setUsername] = useState("");
@@ -50,19 +51,20 @@ function Register({ setToken }) {
   };
 
   return (
-    <div>
+    <div className="login-form">
       <h2>Đăng ký</h2>
       {error && <div className="error">{error}</div>}
       {loading ? (
         <Loader />
       ) : (
-        <>
+        <form>
           <div className="form-group">
             <input
               type="text"
               placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              autoComplete="new-password"
             />
           </div>
           <div className="form-group">
@@ -71,6 +73,7 @@ function Register({ setToken }) {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
             />
           </div>
           <div className="form-group">
@@ -81,10 +84,14 @@ function Register({ setToken }) {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          <button onClick={handleRegister} disabled={loading}>
+          <button
+            className="login-button"
+            onClick={handleRegister}
+            disabled={loading}
+          >
             Đăng ký
           </button>
-        </>
+        </form>
       )}
     </div>
   );

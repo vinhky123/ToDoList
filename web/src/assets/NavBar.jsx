@@ -22,8 +22,6 @@ function NavBar({ token, handleLogout }) {
               </svg>
             </Link>
             <Link to="/todos">Công việc</Link>
-            <Link to="/categories">Danh mục</Link>
-            <Link to="/tags">Tags</Link>
             <button onClick={handleLogout}>Đăng xuất</button>
           </>
         ) : (

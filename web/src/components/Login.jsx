@@ -46,13 +46,14 @@ function Login({ setToken }) {
       {loading ? (
         <Loader />
       ) : (
-        <>
+        <form>
           <div className="form-group">
             <input
               type="text"
-              placeholder="Username"
+              placeholder="User name"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              autoComplete="new-password"
             />
           </div>
           <div className="form-group">
@@ -61,6 +62,7 @@ function Login({ setToken }) {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
             />
           </div>
           <p style={{ margin: "10px 0px" }}>
@@ -73,7 +75,7 @@ function Login({ setToken }) {
           >
             Đăng nhập
           </button>
-        </>
+        </form>
       )}
     </div>
   );
