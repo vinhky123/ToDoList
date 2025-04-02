@@ -32,7 +32,15 @@ function App() {
       <div className="container">
         <NavBar token={token} handleLogout={handleLogout}></NavBar>
         <div className="mainPage">
-          <CategoriesList></CategoriesList>
+          {location.pathname !== "/login" &&
+          location.pathname !== "/register" &&
+          location.pathname !== "/forget" &&
+          location.pathname !== "/reset" ? (
+            <CategoriesList></CategoriesList>
+          ) : (
+            <></>
+          )}
+
           <RouteTransition>
             <Routes>
               <Route path="/login" element={<Login setToken={setToken} />} />
