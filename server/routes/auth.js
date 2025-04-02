@@ -21,7 +21,6 @@ router.post("/register", async (req, res) => {
       "SELECT id FROM users WHERE email = $1",
       [email]
     );
-
     if (rowEmail > 0) {
       return res.status(400).json({ error: "Email đã tồn tại" });
     }
@@ -112,51 +111,62 @@ router.post("/forget", async (req, res) => {
 
 router.post("/reset", async (req, res) => {
   const { token, newPassword } = req.body;
+  const client = await req.db.connect();
   try {
-    const tokenResult = await req.db.query(
+    await client.query("BEGIN");
+
+    const tokenResult = await client.query(
       "SELECT * FROM password_reset_tokens WHERE token = $1",
       [token]
     );
     const resetToken = tokenResult.rows[0];
     if (!resetToken) {
+      await client.query("ROLLBACK");
       return res
         .status(400)
         .json({ error: "Token không hợp lệ hoặc đã hết hạn" });
     }
 
     if (resetToken.is_used) {
+      await client.query("ROLLBACK");
       return res.status(400).json({ error: "Token đã được sử dụng" });
     }
 
     if (new Date() > new Date(resetToken.expires_at)) {
+      await client.query("ROLLBACK");
       return res.status(400).json({ error: "Token đã hết hạn" });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userResult = await req.db.query("SELECT * FROM users WHERE id = $1", [
+    const userResult = await client.query("SELECT * FROM users WHERE id = $1", [
       decoded.userId,
     ]);
     const user = userResult.rows[0];
     if (!user) {
+      await client.query("ROLLBACK");
       return res.status(404).json({ error: "Người dùng không tồn tại" });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    await req.db.query("UPDATE users SET hashed_password = $1 WHERE id = $2", [
+    await client.query("UPDATE users SET hashed_password = $1 WHERE id = $2", [
       hashedPassword,
       user.id,
     ]);
 
-    await req.db.query(
+    await client.query(
       "UPDATE password_reset_tokens SET is_used = $1 WHERE token = $2",
       [true, token]
     );
 
+    await client.query("COMMIT");
     res.json({ message: "Đặt lại mật khẩu thành công" });
   } catch (error) {
+    await client.query("ROLLBACK");
     console.error("Error in reset password:", error);
     res.status(500).json({ error: "Có lỗi xảy ra, vui lòng thử lại sau" });
+  } finally {
+    client.release();
   }
 });
 

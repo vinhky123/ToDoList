@@ -28,6 +28,8 @@ router.post("/:idCategory", auth, async (req, res) => {
 
   const client = await req.db.connect();
   try {
+    await client.query("BEGIN");
+
     const { rows: userCategories } = await client.query(
       "SELECT user_id FROM categories WHERE id = $1",
       [idCategory]
@@ -39,12 +41,32 @@ router.post("/:idCategory", auth, async (req, res) => {
         .json({ error: "Danh mục không thuộc về bạn hoặc không tồn tại" });
     }
 
-    const { rows } = await req.db.query(
-      "INSERT INTO todos (title, category_id, due_date, priority) VALUES ($1, $2, $3, $4) RETURNING *",
-      [title, idCategory, dueDate, priority]
+    const { rows } = await client.query(
+      "INSERT INTO todos (title, category_id, user_id, due_date, priority) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [title, idCategory, userID, dueDate, priority]
     );
     const todo = rows[0];
 
+    // Tạo thông báo nhắc nhở (nếu có due_date)
+    if (dueDate) {
+      const scheduledAt = new Date(
+        new Date(dueDate).getTime() - 24 * 60 * 60 * 1000
+      ); // Nhắc trước 1 ngày
+      await client.query(
+        "INSERT INTO notifications (user_id, todo_id, type, title, content, status, scheduled_at, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())",
+        [
+          userID,
+          todo.id,
+          "email",
+          `Nhắc nhở: Hoàn thành task`,
+          `Task "${title}" của bạn sẽ đến hạn vào ${dueDate}!`,
+          "pending",
+          scheduledAt,
+        ]
+      );
+    }
+
+    await client.query("COMMIT");
     res.status(201).json(todo);
   } catch (err) {
     await client.query("ROLLBACK");
