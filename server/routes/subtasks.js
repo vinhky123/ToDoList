@@ -88,4 +88,21 @@ router.put("/:id", auth, async (req, res) => {
   }
 });
 
+router.delete("/:id", auth, async (req, res) => {
+  try {
+    const { rowCount } = await req.db.query(
+      "DELETE FROM subtasks s USING todos t WHERE s.id = $1 AND s.todo_id = t.id AND t.user_id = $2",
+      [req.params.id, req.userId]
+    );
+    if (rowCount === 0) {
+      return res
+        .status(404)
+        .json({ error: "Subtask không tồn tại hoặc không thuộc về bạn" });
+    }
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: "Có lỗi khi xóa subtask" });
+  }
+});
+
 export default router;

@@ -9,6 +9,12 @@ import subtaskRoutes from "./routes/subtasks.js";
 import noteRoutes from "./routes/notes.js";
 import notificationRoutes from "./routes/notifications.js";
 import logRequestResponse from "./middleware/logRequestResponse.js";
+import rateLimit from "express-rate-limit";
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
 
 dotenv.config();
 

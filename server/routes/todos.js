@@ -3,6 +3,19 @@ import { auth } from "../middleware/auth.js";
 
 const router = express.Router();
 
+// Lấy tất cả todos của 1 users
+router.get("/", auth, async (req, res) => {
+  try {
+    const { rows } = await req.db.query(
+      "SELECT t.*, c.name as category_name FROM todos t LEFT JOIN categories c ON t.category_id = c.id WHERE t.user_id = $1",
+      [req.userId]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ message: "Có lỗi khi lấy dữ liệu" });
+  }
+});
+
 // Lấy tất cả todos trong một category
 router.get("/:idCategory", auth, async (req, res) => {
   const userID = req.userId;

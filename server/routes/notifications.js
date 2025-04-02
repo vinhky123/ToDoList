@@ -57,4 +57,41 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
+// Cập nhật trạng thái thông báo
+router.put("/:id", auth, async (req, res) => {
+  const { status } = req.body; // e.g., "sent", "cancelled"
+  try {
+    const { rows } = await req.db.query(
+      "UPDATE notifications SET status = $1, updated_at = NOW() WHERE id = $2 AND user_id = $3 RETURNING *",
+      [status, req.params.id, req.userId]
+    );
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Thông báo không tồn tại hoặc không thuộc về bạn" });
+    }
+    res.json(rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: "Có lỗi khi cập nhật thông báo" });
+  }
+});
+
+// Xóa thông báo
+router.delete("/:id", auth, async (req, res) => {
+  try {
+    const { rowCount } = await req.db.query(
+      "DELETE FROM notifications WHERE id = $1 AND user_id = $2",
+      [req.params.id, req.userId]
+    );
+    if (rowCount === 0) {
+      return res
+        .status(404)
+        .json({ error: "Thông báo không tồn tại hoặc không thuộc về bạn" });
+    }
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: "Có lỗi khi xóa thông báo" });
+  }
+});
+
 export default router;

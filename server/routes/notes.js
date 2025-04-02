@@ -148,4 +148,59 @@ router.put("/blocks/:blockId", auth, async (req, res) => {
   }
 });
 
+// Cập nhật note
+router.put("/:todoId", auth, async (req, res) => {
+  const { title } = req.body;
+  try {
+    const { rows } = await req.db.query(
+      "UPDATE task_notes SET title = $1, updated_at = NOW() WHERE todo_id = $2 AND EXISTS (SELECT 1 FROM todos WHERE id = $2 AND user_id = $3) RETURNING *",
+      [title, req.params.todoId, req.userId]
+    );
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Note không tồn tại hoặc không thuộc về bạn" });
+    }
+    res.json(rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: "Có lỗi khi cập nhật note" });
+  }
+});
+
+// Xóa note
+router.delete("/:todoId", auth, async (req, res) => {
+  try {
+    const { rowCount } = await req.db.query(
+      "DELETE FROM task_notes WHERE todo_id = $1 AND EXISTS (SELECT 1 FROM todos WHERE id = $1 AND user_id = $2)",
+      [req.params.todoId, req.userId]
+    );
+    if (rowCount === 0) {
+      return res
+        .status(404)
+        .json({ error: "Note không tồn tại hoặc không thuộc về bạn" });
+    }
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: "Có lỗi khi xóa note" });
+  }
+});
+
+// Xóa block
+router.delete("/blocks/:blockId", auth, async (req, res) => {
+  try {
+    const { rowCount } = await req.db.query(
+      "DELETE FROM note_blocks nb USING task_notes tn, todos t WHERE nb.id = $1 AND nb.note_id = tn.id AND tn.todo_id = t.id AND t.user_id = $2",
+      [req.params.blockId, req.userId]
+    );
+    if (rowCount === 0) {
+      return res
+        .status(404)
+        .json({ error: "Block không tồn tại hoặc không thuộc về bạn" });
+    }
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: "Có lỗi khi xóa block" });
+  }
+});
+
 export default router;
