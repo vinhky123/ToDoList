@@ -42,38 +42,37 @@ function App() {
               onCategorySelect={handleCategorySelect}
             />
           )}
-          <div className="content-area">
-            {token && selectedCategory ? (
-              <TodoList token={token} selectedCategory={selectedCategory} />
-            ) : (
-              <h2>Chọn một danh mục để xem todos</h2>
-            )}
-            <RouteTransition>
-              <Routes>
-                <Route path="/login" element={<Login setToken={setToken} />} />
-                <Route
-                  path="/register"
-                  element={<Register setToken={setToken} />}
-                />
-                <Route path="/forget" element={<ForgetPassword />} />
-                <Route path="/reset" element={<ResetPassword />} />
-                <Route
-                  path="/todos"
-                  element={
-                    token ? (
-                      <TodoList
-                        token={token}
-                        selectedCategory={selectedCategory}
-                      />
-                    ) : (
-                      <RedirectToLogin />
-                    )
-                  }
-                />
-                <Route path="/" element={<Home token={token} />} />
-              </Routes>
-            </RouteTransition>
-          </div>
+
+          <RouteTransition>
+            <Routes>
+              <Route path="/login" element={<Login setToken={setToken} />} />
+              <Route
+                path="/register"
+                element={<Register setToken={setToken} />}
+              />
+              <Route path="/forget" element={<ForgetPassword />} />
+              <Route path="/reset" element={<ResetPassword />} />
+              <Route
+                path="/todos"
+                element={
+                  token ? (
+                    <TodoList
+                      token={token}
+                      selectedCategory={selectedCategory}
+                    />
+                  ) : (
+                    <RedirectToLogin />
+                  )
+                }
+              />
+              <Route
+                path="/"
+                element={
+                  <Home token={token} selectedCategory={selectedCategory} />
+                }
+              />
+            </Routes>
+          </RouteTransition>
         </div>
       </div>
     </Router>
@@ -96,13 +95,17 @@ function RouteTransition({ children }) {
   );
 }
 
-function Home({ token }) {
+function Home({ token, selectedCategory }) {
   return (
-    <h1>
-      {token
-        ? "Chào mừng đến với ứng dụng To-Do List!"
-        : "Vui lòng đăng nhập để tiếp tục"}
-    </h1>
+    <>
+      {token ? <></> : <h1>Chào mừng đến với ứng dụng To-Do List!</h1>}
+
+      {token && selectedCategory ? (
+        <TodoList token={token} selectedCategory={selectedCategory} />
+      ) : (
+        <h1>Chọn 1 danh mục hoặc tạo mới</h1>
+      )}
+    </>
   );
 }
 

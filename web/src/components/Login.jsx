@@ -31,7 +31,7 @@ function Login({ setToken }) {
       localStorage.setItem("token", token);
       setToken(token);
       setError("");
-      navigate("/todos");
+      navigate("/");
     } catch (error) {
       setError(error.response?.data?.error || "Có lỗi xảy ra khi đăng nhập");
     } finally {

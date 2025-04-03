@@ -1,13 +1,18 @@
-// TodoList.jsx
 import { useState, useEffect } from "react";
 import axios from "axios";
-import "../styles/todolist.css"; // Tạo file CSS nếu cần
+import "../styles/todolist.css";
+import Select from "react-select";
+import { useForm } from "react-hook-form";
+import { TextField, Button } from "@mui/material";
+import { color } from "framer-motion";
 
 function TodoList({ token, selectedCategory }) {
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState("");
+  const [dueDate, setDueDate] = useState(null);
+  const [newTodoPriority, setNewTodoPriority] = useState("");
   const [loading, setLoading] = useState(false);
-  const [expandedTodo, setExpandedTodo] = useState(null); // Theo dõi todo nào đang mở subtask
+  const [expandedTodo, setExpandedTodo] = useState(null);
 
   useEffect(() => {
     if (!token || !selectedCategory) return;
@@ -34,8 +39,8 @@ function TodoList({ token, selectedCategory }) {
     if (!newTodo.trim()) return;
     try {
       const response = await axios.post(
-        `/api/categories/${selectedCategory.id}/todos`,
-        { title: newTodo },
+        `/api/todos/${selectedCategory.id}`,
+        { title: newTodo, dueDate: dueDate, priority: newTodoPriority },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setTodos([...todos, response.data]);
@@ -50,25 +55,49 @@ function TodoList({ token, selectedCategory }) {
   };
 
   const handleNotesClick = (todoId) => {
-    // Điều hướng hoặc mở modal ghi chú ở đây
     console.log(`Mở notes cho todo ${todoId}`);
   };
 
+  const priorityOptions = [
+    { value: "low", label: "Thấp" },
+    { value: "medium", label: "Trung bình" },
+    { value: "high", label: "Cao" },
+  ];
+
   return (
     <div className="todo-list">
-      <h2>{selectedCategory?.name || "Chọn một danh mục"}</h2>
+      <h2>{selectedCategory.name}</h2>
+      <p className="add-todos-text">Thêm công việc mới</p>
       <div className="add-todo">
+        <p className="selection-title">Tựa đề</p>
         <input
-          placeholder="Thêm todo mới"
+          placeholder={selectedCategory.name}
           value={newTodo}
           onChange={(e) => setNewTodo(e.target.value)}
         />
+        <p className="selection-title">Thời gian hết hạn</p>
+        <input
+          type="datetime-local"
+          id="dateInput"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+        />
+        <p className="selection-title">Độ ưu tiên</p>
+        <Select
+          options={priorityOptions}
+          value={priorityOptions.find(
+            (option) => option.value === newTodoPriority
+          )}
+          onChange={(option) => setNewTodoPriority(option ? option.value : "")}
+          placeholder="-- Ưu tiên --"
+        />
         <button onClick={handleAddTodo}>+</button>
       </div>
+
       {loading ? (
         <p>Đang tải...</p>
       ) : todos.length === 0 ? (
-        <p>Chưa có todo nào!</p>
+        <p className="no-todo-warning">Chưa có công việc nào!</p>
       ) : (
         <ul className="todos">
           {todos.map((todo) => (

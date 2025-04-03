@@ -27,15 +27,39 @@
 
 .add-todo {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
   gap: 10px;
   margin-bottom: 20px;
 }
 
 .add-todo input {
   flex: 1;
-  padding: 5px;
+  padding: 15px;
+  border: hsl(0, 0%, 80%);
+  height: 100%;
+}
+
+.add-todo input:focus {
+  outline: none;
+}
+
+.selection-title {
+  margin: 0;
+  color: #34495e;
+}
+
+.add-todos-text {
+  margin-bottom: 20px;
+  color: #34495e;
 }
 
 .add-todo button {
   padding: 5px 10px;
+}
+
+.no-todo-warning {
+  margin-top: 50px;
+  color: red;
 }
