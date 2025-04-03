@@ -54,14 +54,10 @@ router.post("/:idCategory", auth, async (req, res) => {
       "INSERT INTO todos (title, category_id, due_date, priority) VALUES ($1, $2, $3, $4) RETURNING *",
       [title, idCategory, dueDate, priority]
     );
-    const todo = rows[0];
 
-    res.status(201).json(todo);
+    res.status(201).json(rows[0]);
   } catch (err) {
-    await client.query("ROLLBACK");
     res.status(500).json({ message: "Có lỗi khi thêm dữ liệu" });
-  } finally {
-    client.release();
   }
 });
 

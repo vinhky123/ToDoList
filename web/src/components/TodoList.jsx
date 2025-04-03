@@ -64,34 +64,59 @@ function TodoList({ token, selectedCategory }) {
     { value: "high", label: "Cao" },
   ];
 
+  // Function to get background color based on priority
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case "high":
+        return "#d6eadf";
+      case "medium":
+        return "#fdffb6";
+      case "low":
+        return "#caffbf";
+      default:
+        return "#ffffff";
+    }
+  };
+
   return (
     <div className="todo-list">
       <h2>{selectedCategory.name}</h2>
       <p className="add-todos-text">Thêm công việc mới</p>
       <div className="add-todo">
-        <p className="selection-title">Tựa đề</p>
-        <input
-          placeholder={selectedCategory.name}
-          value={newTodo}
-          onChange={(e) => setNewTodo(e.target.value)}
-        />
-        <p className="selection-title">Thời gian hết hạn</p>
-        <input
-          type="datetime-local"
-          id="dateInput"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-        />
-        <p className="selection-title">Độ ưu tiên</p>
-        <Select
-          options={priorityOptions}
-          value={priorityOptions.find(
-            (option) => option.value === newTodoPriority
-          )}
-          onChange={(option) => setNewTodoPriority(option ? option.value : "")}
-          placeholder="-- Ưu tiên --"
-        />
-        <button onClick={handleAddTodo}>+</button>
+        <div className="input-title">
+          <p className="selection-title">Tựa đề:</p>
+          <input
+            placeholder={selectedCategory.name}
+            value={newTodo}
+            onChange={(e) => setNewTodo(e.target.value)}
+          />
+        </div>
+        <div className="input-duedate">
+          <p className="selection-title">Thời gian hết hạn:</p>
+          <input
+            type="datetime-local"
+            id="dateInput"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+          />
+        </div>
+        <div className="input-priority">
+          <p className="selection-title">Độ ưu tiên:</p>
+          <Select
+            options={priorityOptions}
+            value={priorityOptions.find(
+              (option) => option.value === newTodoPriority
+            )}
+            onChange={(option) =>
+              setNewTodoPriority(option ? option.value : "")
+            }
+            placeholder="-- Ưu tiên --"
+          />
+        </div>
+        <div className="input-todos-button">
+          <div className="empty">a</div>
+          <button onClick={handleAddTodo}>+</button>
+        </div>
       </div>
 
       {loading ? (
@@ -101,15 +126,20 @@ function TodoList({ token, selectedCategory }) {
       ) : (
         <ul className="todos">
           {todos.map((todo) => (
-            <li key={todo.id} className="todo-item">
-              <span>{todo.title}</span>
-              <button onClick={() => toggleSubtasks(todo.id)}>
-                {expandedTodo === todo.id ? "Ẩn" : "Hiện"} Subtasks
-              </button>
-              <button onClick={() => handleNotesClick(todo.id)}>Notes</button>
+            <li
+              key={todo.id}
+              className="todo-item"
+              style={{
+                backgroundColor: getPriorityColor(todo.priority),
+                padding: "10px", // Optional: adds some padding for better appearance
+                margin: "5px 0", // Optional: adds some spacing between items
+                borderRadius: "4px", // Optional: adds rounded corners
+              }}
+            >
+              <h3>{todo.title}</h3>
+
               {expandedTodo === todo.id && (
                 <div className="subtasks">
-                  {/* Hiển thị subtask ở đây, hiện tại để placeholder */}
                   <p>Chưa có subtask (cần thêm API và logic).</p>
                 </div>
               )}

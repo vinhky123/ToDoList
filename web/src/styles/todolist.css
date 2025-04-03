@@ -51,7 +51,8 @@
 }
 
 .add-todos-text {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  margin-right: 0;
   color: #34495e;
 }
 
@@ -62,4 +63,24 @@
 .no-todo-warning {
   margin-top: 50px;
   color: red;
+}
+
+.input-title,
+.input-duedate,
+.input-priority,
+.input-todos-button {
+  display: flex;
+  flex-direction: column;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.empty {
+  color: transparent;
+}
+
+.todo-item {
+  display: flex;
+  justify-content: center;
+  padding: 100px;
 }

@@ -41,7 +41,7 @@ function NavBar({ token, handleLogout }) {
                 />
               </svg>
             </Link>
-            <p>Xin chào, {firstname}!</p>
+            <p className="hello-user">Xin chào, {firstname}!</p>
             <button onClick={handleLogout}>Đăng xuất</button>
           </>
         ) : (
