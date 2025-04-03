@@ -1,12 +1,12 @@
+// App.jsx
+import { useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Link,
   useNavigate,
   useLocation,
 } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Login from "./components/Login";
 import Register from "./components/Register";
@@ -19,38 +19,61 @@ import "./App.css";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const [selectedCategory, setSelectedCategory] = useState(null); // Thêm trạng thái danh mục
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     setToken("");
+    setSelectedCategory(null); // Reset danh mục khi logout
   };
 
-  useEffect(() => {}, []);
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+  };
 
   return (
     <Router>
       <div className="container">
-        <NavBar token={token} handleLogout={handleLogout}></NavBar>
+        <NavBar token={token} handleLogout={handleLogout} />
         <div className="mainPage">
-          {token ? <CategoriesList token={token}></CategoriesList> : <></>}
-
-          <RouteTransition>
-            <Routes>
-              <Route path="/login" element={<Login setToken={setToken} />} />
-              <Route
-                path="/register"
-                element={<Register setToken={setToken} />}
-              />
-              <Route path="/forget" element={<ForgetPassword />} />
-              <Route path="/reset" element={<ResetPassword />} />
-              <Route
-                path="/todos"
-                element={token ? <TodoList /> : <RedirectToLogin />}
-              />
-
-              <Route path="/" element={<Home token={token} />} />
-            </Routes>
-          </RouteTransition>
+          {token && (
+            <CategoriesList
+              token={token}
+              onCategorySelect={handleCategorySelect}
+            />
+          )}
+          <div className="content-area">
+            {token && selectedCategory ? (
+              <TodoList token={token} selectedCategory={selectedCategory} />
+            ) : (
+              <h2>Chọn một danh mục để xem todos</h2>
+            )}
+            <RouteTransition>
+              <Routes>
+                <Route path="/login" element={<Login setToken={setToken} />} />
+                <Route
+                  path="/register"
+                  element={<Register setToken={setToken} />}
+                />
+                <Route path="/forget" element={<ForgetPassword />} />
+                <Route path="/reset" element={<ResetPassword />} />
+                <Route
+                  path="/todos"
+                  element={
+                    token ? (
+                      <TodoList
+                        token={token}
+                        selectedCategory={selectedCategory}
+                      />
+                    ) : (
+                      <RedirectToLogin />
+                    )
+                  }
+                />
+                <Route path="/" element={<Home token={token} />} />
+              </Routes>
+            </RouteTransition>
+          </div>
         </div>
       </div>
     </Router>
@@ -59,7 +82,6 @@ function App() {
 
 function RouteTransition({ children }) {
   const location = useLocation();
-
   return (
     <AnimatePresence mode="wait">
       <motion.div

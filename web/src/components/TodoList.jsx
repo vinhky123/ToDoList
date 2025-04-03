@@ -1,38 +1,41 @@
+// TodoList.jsx
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
 import axios from "axios";
-import "../styles/todos.css";
+import "../styles/todolist.css"; // Tạo file CSS nếu cần
 
-function TodoList() {
+function TodoList({ token, selectedCategory }) {
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState("");
-  const [selectedTodo, setSelectedTodo] = useState(null); // Để mở note
-  const [searchParams] = useSearchParams();
-  const categoryId = searchParams.get("category") || "default"; // Lấy category từ URL
-  const token = localStorage.getItem("token");
+  const [loading, setLoading] = useState(false);
+  const [expandedTodo, setExpandedTodo] = useState(null); // Theo dõi todo nào đang mở subtask
 
-  // Lấy todos theo category
   useEffect(() => {
+    if (!token || !selectedCategory) return;
     const fetchTodos = async () => {
+      setLoading(true);
       try {
-        const response = await axios.get(`/api/todos?category=${categoryId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setTodos(response.data || []);
+        const response = await axios.get(
+          `/api/categories/${selectedCategory.id}/todos`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setTodos(response.data);
       } catch (error) {
         console.error("Lỗi khi lấy todos:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchTodos();
-  }, [categoryId, token]);
+  }, [token, selectedCategory]);
 
-  // Thêm todo mới
   const handleAddTodo = async () => {
     if (!newTodo.trim()) return;
     try {
       const response = await axios.post(
-        "/api/todos",
-        { title: newTodo, categoryId },
+        `/api/categories/${selectedCategory.id}/todos`,
+        { title: newTodo },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setTodos([...todos, response.data]);
@@ -42,68 +45,49 @@ function TodoList() {
     }
   };
 
-  // Thêm subtask
-  const handleAddSubtask = async (todoId, subtaskTitle) => {
-    try {
-      const response = await axios.post(
-        `/api/todos/${todoId}/subtasks`,
-        { title: subtaskTitle },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setTodos(
-        todos.map((todo) =>
-          todo.id === todoId
-            ? { ...todo, subtasks: [...(todo.subtasks || []), response.data] }
-            : todo
-        )
-      );
-    } catch (error) {
-      console.error("Lỗi khi thêm subtask:", error);
-    }
+  const toggleSubtasks = (todoId) => {
+    setExpandedTodo(expandedTodo === todoId ? null : todoId);
+  };
+
+  const handleNotesClick = (todoId) => {
+    // Điều hướng hoặc mở modal ghi chú ở đây
+    console.log(`Mở notes cho todo ${todoId}`);
   };
 
   return (
-    <div className="todo-container">
-      {selectedTodo ? (
-        <TodoNote todo={selectedTodo} setSelectedTodo={setSelectedTodo} />
-      ) : (
-        <>
-          <h2>Công việc</h2>
-        </>
-      )}
-    </div>
-  );
-}
-
-function TodoNote({ todo, setSelectedTodo }) {
-  const [note, setNote] = useState(todo.note || "");
-  const token = localStorage.getItem("token");
-
-  const handleSaveNote = async () => {
-    try {
-      await axios.put(
-        `/api/todos/${todo.id}`,
-        { note },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setSelectedTodo(null);
-    } catch (error) {
-      console.error("Lỗi khi lưu note:", error);
-    }
-  };
-
-  return (
-    <div className="todo-note">
-      <h2>Ghi chú cho: {todo.title}</h2>
-      <textarea
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        placeholder="Ghi chú của bạn (hỗ trợ code, text, v.v.)"
-      />
-      <div className="note-actions">
-        <button onClick={handleSaveNote}>Lưu</button>
-        <button onClick={() => setSelectedTodo(null)}>Quay lại</button>
+    <div className="todo-list">
+      <h2>{selectedCategory?.name || "Chọn một danh mục"}</h2>
+      <div className="add-todo">
+        <input
+          placeholder="Thêm todo mới"
+          value={newTodo}
+          onChange={(e) => setNewTodo(e.target.value)}
+        />
+        <button onClick={handleAddTodo}>+</button>
       </div>
+      {loading ? (
+        <p>Đang tải...</p>
+      ) : todos.length === 0 ? (
+        <p>Chưa có todo nào!</p>
+      ) : (
+        <ul className="todos">
+          {todos.map((todo) => (
+            <li key={todo.id} className="todo-item">
+              <span>{todo.title}</span>
+              <button onClick={() => toggleSubtasks(todo.id)}>
+                {expandedTodo === todo.id ? "Ẩn" : "Hiện"} Subtasks
+              </button>
+              <button onClick={() => handleNotesClick(todo.id)}>Notes</button>
+              {expandedTodo === todo.id && (
+                <div className="subtasks">
+                  {/* Hiển thị subtask ở đây, hiện tại để placeholder */}
+                  <p>Chưa có subtask (cần thêm API và logic).</p>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

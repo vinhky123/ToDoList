@@ -1,10 +1,11 @@
+// CategoriesList.jsx
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Loader from "../components/Loader";
 import axios from "axios";
+import Loader from "../components/Loader";
 import "../styles/categories.css";
 
-function CategoriesList({ token }) {
+function CategoriesList({ token, onCategorySelect }) {
+  // Thêm prop onCategorySelect
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState("");
   const [loading, setLoading] = useState(false);
@@ -12,9 +13,6 @@ function CategoriesList({ token }) {
   const [isOpenAddCate, setIsOpenAddCate] = useState(false);
   const [error, setError] = useState("");
 
-  const navigate = useNavigate();
-
-  // Lấy danh sách categories từ API
   useEffect(() => {
     if (!token) return;
     const fetchCategories = async () => {
@@ -33,7 +31,6 @@ function CategoriesList({ token }) {
     fetchCategories();
   }, [token]);
 
-  // Thêm category mới
   const handleAddCategory = async () => {
     setError("");
     if (!newCategory.trim()) return;
@@ -47,11 +44,9 @@ function CategoriesList({ token }) {
       setNewCategory("");
     } catch (error) {
       setError(error.response?.data?.error || "Lỗi không xác định");
-      console.error("Lỗi khi thêm category:", error);
     }
   };
 
-  // Xóa category
   const handleDeleteCategory = async (categoryId) => {
     setError("");
     try {
@@ -63,26 +58,28 @@ function CategoriesList({ token }) {
       );
     } catch (error) {
       setError(error.response?.data?.error || "Không thể xóa danh mục");
-      console.error("Lỗi khi xóa category:", error);
     }
   };
 
-  // Hàm render danh sách categories với nút xóa
   const categoriesItem = () => {
-    if (loading) {
-      return <Loader />;
-    }
-    if (categories.length === 0) {
+    if (loading) return <Loader />;
+    if (categories.length === 0)
       return <p className="no-categories">Chưa có danh mục nào!</p>;
-    }
     return (
       <ul className="categories-list">
         {categories.map((category) => (
-          <li key={category.id} className="category-item">
+          <li
+            key={category.id}
+            className="category-item"
+            onClick={() => onCategorySelect(category)} // Thêm sự kiện chọn
+          >
             <span className="category-name">{category.name}</span>
             <button
               className="delete-btn"
-              onClick={() => handleDeleteCategory(category.id)}
+              onClick={(e) => {
+                e.stopPropagation(); // Ngăn sự kiện click lan lên li
+                handleDeleteCategory(category.id);
+              }}
             >
               X
             </button>
@@ -92,13 +89,8 @@ function CategoriesList({ token }) {
     );
   };
 
-  const openAddCate = () => {
-    setIsOpenAddCate(!isOpenAddCate);
-  };
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  const openAddCate = () => setIsOpenAddCate(!isOpenAddCate);
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   return (
     <div className={`categories-sidebar ${isSidebarOpen ? "open" : "closed"}`}>
@@ -123,11 +115,7 @@ function CategoriesList({ token }) {
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
                 />
-                <button
-                  type="submit"
-                  onClick={handleAddCategory}
-                  disabled={loading}
-                >
+                <button onClick={handleAddCategory} disabled={loading}>
                   +
                 </button>
               </div>
