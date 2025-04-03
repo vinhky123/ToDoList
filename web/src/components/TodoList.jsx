@@ -69,43 +69,6 @@ function TodoList() {
       ) : (
         <>
           <h2>Công việc</h2>
-          <div className="todo-input">
-            <input
-              type="text"
-              placeholder="Thêm công việc mới"
-              value={newTodo}
-              onChange={(e) => setNewTodo(e.target.value)}
-            />
-            <button onClick={handleAddTodo}>Thêm</button>
-          </div>
-          <ul className="todo-list">
-            {todos.map((todo) => (
-              <li key={todo.id} className="todo-item">
-                <div className="todo-content">
-                  <span>{todo.title}</span>
-                  <div className="todo-actions">
-                    <button onClick={() => setSelectedTodo(todo)}>
-                      Ghi chú
-                    </button>
-                    <button
-                      onClick={() =>
-                        handleAddSubtask(todo.id, prompt("Tên subtask:"))
-                      }
-                    >
-                      Thêm subtask
-                    </button>
-                  </div>
-                </div>
-                {todo.subtasks && (
-                  <ul className="subtask-list">
-                    {todo.subtasks.map((subtask) => (
-                      <li key={subtask.id}>{subtask.title}</li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            ))}
-          </ul>
         </>
       )}
     </div>

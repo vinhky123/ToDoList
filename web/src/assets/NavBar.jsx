@@ -1,7 +1,27 @@
 import { Link } from "react-router-dom";
 import "../styles/navbar.css";
+import { useEffect } from "react";
+import { useState } from "react";
+import axios from "axios";
 
 function NavBar({ token, handleLogout }) {
+  const [firstname, setFirstname] = useState("");
+
+  useEffect(() => {
+    if (!token) return;
+    const getName = async () => {
+      try {
+        const response = await axios.get("api/auth/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setFirstname(response.data.first_name);
+      } catch (error) {
+        console.error("Lỗi khi tải dữ liệu người dùng:", error);
+      }
+    };
+    getName();
+  });
+
   return (
     <div className="NavBar">
       <nav className="aa">
@@ -21,7 +41,7 @@ function NavBar({ token, handleLogout }) {
                 />
               </svg>
             </Link>
-            <Link to="/todos">Công việc</Link>
+            <p>Xin chào, {firstname}!</p>
             <button onClick={handleLogout}>Đăng xuất</button>
           </>
         ) : (

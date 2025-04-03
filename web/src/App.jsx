@@ -11,8 +11,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import TodoList from "./components/TodoList";
-import CategoryList from "./components/CategoryList";
-import TagList from "./components/TagList";
 import ForgetPassword from "./components/ForgetPassword";
 import ResetPassword from "./components/ResetPassword";
 import NavBar from "./assets/NavBar";
@@ -27,12 +25,14 @@ function App() {
     setToken("");
   };
 
+  useEffect(() => {}, []);
+
   return (
     <Router>
       <div className="container">
         <NavBar token={token} handleLogout={handleLogout}></NavBar>
         <div className="mainPage">
-          {token ? <CategoriesList></CategoriesList> : <></>}
+          {token ? <CategoriesList token={token}></CategoriesList> : <></>}
 
           <RouteTransition>
             <Routes>
@@ -47,14 +47,7 @@ function App() {
                 path="/todos"
                 element={token ? <TodoList /> : <RedirectToLogin />}
               />
-              <Route
-                path="/categories"
-                element={token ? <CategoryList /> : <RedirectToLogin />}
-              />
-              <Route
-                path="/tags"
-                element={token ? <TagList /> : <RedirectToLogin />}
-              />
+
               <Route path="/" element={<Home token={token} />} />
             </Routes>
           </RouteTransition>

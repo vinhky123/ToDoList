@@ -10,6 +10,7 @@ router.get("/", auth, async (req, res) => {
       "SELECT * FROM categories WHERE user_id = $1",
       [userID]
     );
+    console.log(rows);
 
     res.json(rows);
   } catch (error) {
@@ -22,13 +23,21 @@ router.post("/", auth, async (req, res) => {
   const { name } = req.body;
 
   try {
+    const { rowCount } = await req.db.query(
+      "SELECT id from categories WHERE name = $1",
+      [name]
+    );
+
+    if (rowCount !== 0) {
+      return res.status(403).json({ error: "Đã tồn tại Danh mục này" });
+    }
     const { rows } = await req.db.query(
       "INSERT INTO categories (name, user_id) VALUES ($1, $2) RETURNING *",
       [name, userID]
     );
+
     res.status(201).json(rows[0]);
   } catch (error) {
-    console.log(error);
     res.status(500).json({ error: "Có lỗi khi thêm danh mục" });
   }
 });

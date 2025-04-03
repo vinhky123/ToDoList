@@ -8,7 +8,7 @@ import { auth } from "../middleware/auth.js";
 const router = express.Router();
 
 router.post("/register", async (req, res) => {
-  const { username, password, email } = req.body;
+  const { username, password, email, firstname, lastname } = req.body;
 
   try {
     const { rowCount: rowUser } = await req.db.query(
@@ -29,8 +29,8 @@ router.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     await req.db.query(
-      "INSERT INTO users (username, hashed_password, email) VALUES ($1, $2, $3) RETURNING *",
-      [username, hashedPassword, email]
+      "INSERT INTO users (username, hashed_password, email, first_name, last_name) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [username, hashedPassword, email, firstname, lastname]
     );
 
     res.status(201).json({ message: "Đăng ký thành công" });
@@ -71,7 +71,7 @@ router.post("/login", async (req, res) => {
 router.get("/me", auth, async (req, res) => {
   try {
     const { rows } = await req.db.query(
-      "SELECT id, username, email FROM users WHERE id = $1",
+      "SELECT id, username, email, first_name, last_name FROM users WHERE id = $1",
       [req.userId]
     );
     if (rows.length === 0) {

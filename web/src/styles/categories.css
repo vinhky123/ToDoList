@@ -1,17 +1,89 @@
 .categories-sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 250px;
   height: 100vh;
   background-color: #d4dada;
-  color: white;
+  color: #2c3e50;
   padding: 20px;
   position: sticky;
   top: 0;
   left: 0;
-  overflow-y: auto;
+  overflow-y: visible;
+  transition: all 0.3s ease;
+  z-index: 100000000000000;
+}
+
+.categories-sidebar.closed {
+  background-color: #f4f7fa;
+  width: 0;
+  transform: translateX(-100%);
+}
+
+.hamburger-btn {
+  position: absolute;
+  top: 10px;
+  right: -40px;
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.hamburger-btn:hover {
+  background-color: #d4dada;
+}
+
+.hamburger-icon {
+  display: block;
+  width: 100%;
+  height: 4px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.hamburger-icon::before,
+.hamburger-icon::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background-color: #333;
+  transition: all 0.3s ease;
+}
+
+.hamburger-icon::before {
+  top: -10px;
+  rotate: 45deg;
+  translate: 0px 10px;
+  right: 0;
+}
+
+.hamburger-icon::after {
+  bottom: -10px;
+  rotate: -45deg;
+  translate: 0px -10px;
+  right: 0;
+}
+
+.categories-sidebar.closed .hamburger-icon {
+  transition: all 0.3s ease;
+  background: #333;
+}
+
+.categories-sidebar.closed .hamburger-icon::before {
+  transform: rotate(-45deg) translateY(-10px);
+}
+
+.categories-sidebar.closed .hamburger-icon::after {
+  transform: rotate(45deg) translateY(10px);
 }
 
 .categories-sidebar h3 {
-  color: white;
+  color: #2c3e50;
   margin-bottom: 20px;
 }
 
@@ -52,4 +124,114 @@
 
 .category-list a:hover {
   background-color: #34495e;
+}
+
+.add-button {
+  background-color: #aaafaf;
+  height: 40px;
+  width: 40px;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.add-button:hover {
+  transform: translateX(2px);
+  transition: all 0.2s ease;
+  background-color: #c5caca;
+}
+
+.add-category {
+  display: flex;
+  flex-direction: row;
+}
+
+.add-category button {
+  border-radius: 0px 5px 5px 0px;
+  height: 25px;
+  width: 25px;
+  padding: 0;
+  margin: 0;
+  border: solid black 1px;
+}
+
+.add-category input {
+  border: solid black 1px;
+  border-radius: 5px 0px 0px 5px;
+  padding: 5px;
+  height: 25px;
+  border-right: 0;
+  width: 100%;
+}
+
+.add-category input:focus {
+  outline: none;
+}
+
+.categories-sidebar p {
+  color: red;
+  margin-top: 20px;
+  margin-right: 0;
+}
+
+.category-item {
+  list-style: none;
+}
+
+/* Style cho danh sách categories */
+.categories-list {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  margin-bottom: 8px;
+  background-color: #ecf0f1;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.category-item:hover {
+  background-color: #bdc3c7;
+  transform: translateX(2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.category-name {
+  font-size: 1rem;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+/* Thông báo khi không có danh mục */
+.no-categories {
+  color: #7f8c8d;
+  font-style: italic;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Style cho nút xóa */
+.delete-btn {
+  background-color: #e74c3c;
+  padding: 0;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 0.9rem;
+  line-height: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
 }

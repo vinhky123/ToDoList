@@ -13,7 +13,8 @@ nav {
   height: 10vh;
 }
 
-nav a {
+nav a,
+p {
   color: #ecf0f1;
   text-decoration: none;
   font-weight: 500;

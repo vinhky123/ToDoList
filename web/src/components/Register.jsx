@@ -8,6 +8,8 @@ function Register({ setToken }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
+  const [firstname, setFirstname] = useState("");
+  const [lastname, setLastname] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -27,12 +29,21 @@ function Register({ setToken }) {
       return;
     }
 
+    if (!firstname) {
+      setError("First Name là bắt buộc");
+    }
+
+    if (!lastname) {
+      setError("Last Name là bắt buộc");
+    }
     setLoading(true);
     try {
       await axios.post("/api/auth/register", {
         username,
         password,
         email,
+        firstname,
+        lastname,
       });
       const response = await axios.post("/api/auth/login", {
         username,
@@ -82,6 +93,24 @@ function Register({ setToken }) {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="text"
+              placeholder="First Name"
+              value={firstname}
+              onChange={(e) => setFirstname(e.target.value)}
+              autoComplete="new-password"
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="text"
+              placeholder="Last Name"
+              value={lastname}
+              onChange={(e) => setLastname(e.target.value)}
+              autoComplete="new-password"
             />
           </div>
           <button

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import Loader from "../components/Loader";
 import axios from "axios";
 import "../styles/categories.css";
 
@@ -7,6 +8,10 @@ function CategoriesList({ token }) {
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isOpenAddCate, setIsOpenAddCate] = useState(false);
+  const [error, setError] = useState("");
+
   const navigate = useNavigate();
 
   // Lấy danh sách categories từ API
@@ -18,7 +23,7 @@ function CategoriesList({ token }) {
         const response = await axios.get("/api/categories", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setCategories(response.data || [{ id: "default", name: "Mặc định" }]); // Category mặc định nếu API chưa có
+        setCategories(response.data);
       } catch (error) {
         console.error("Lỗi khi lấy categories:", error);
       } finally {
@@ -30,6 +35,7 @@ function CategoriesList({ token }) {
 
   // Thêm category mới
   const handleAddCategory = async () => {
+    setError("");
     if (!newCategory.trim()) return;
     try {
       const response = await axios.post(
@@ -40,32 +46,95 @@ function CategoriesList({ token }) {
       setCategories([...categories, response.data]);
       setNewCategory("");
     } catch (error) {
+      setError(error.response?.data?.error || "Lỗi không xác định");
       console.error("Lỗi khi thêm category:", error);
     }
   };
 
+  // Xóa category
+  const handleDeleteCategory = async (categoryId) => {
+    setError("");
+    try {
+      await axios.delete(`/api/categories/${categoryId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCategories(
+        categories.filter((category) => category.id !== categoryId)
+      );
+    } catch (error) {
+      setError(error.response?.data?.error || "Không thể xóa danh mục");
+      console.error("Lỗi khi xóa category:", error);
+    }
+  };
+
+  // Hàm render danh sách categories với nút xóa
+  const categoriesItem = () => {
+    if (loading) {
+      return <Loader />;
+    }
+    if (categories.length === 0) {
+      return <p className="no-categories">Chưa có danh mục nào!</p>;
+    }
+    return (
+      <ul className="categories-list">
+        {categories.map((category) => (
+          <li key={category.id} className="category-item">
+            <span className="category-name">{category.name}</span>
+            <button
+              className="delete-btn"
+              onClick={() => handleDeleteCategory(category.id)}
+            >
+              X
+            </button>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  const openAddCate = () => {
+    setIsOpenAddCate(!isOpenAddCate);
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
-    <div className="categories-sidebar">
-      <h3>Danh mục</h3>
-      <div className="category-input">
-        <input
-          type="text"
-          placeholder="Tên danh mục mới"
-          value={newCategory}
-          onChange={(e) => setNewCategory(e.target.value)}
-        />
-        <button onClick={handleAddCategory}>Thêm</button>
-      </div>
-      {loading ? (
-        <p>Đang tải...</p>
-      ) : (
-        <ul className="category-list">
-          {categories.map((category) => (
-            <li key={category.id}>
-              <Link to={`/todos?category=${category.id}`}>{category.name}</Link>
-            </li>
-          ))}
-        </ul>
+    <div className={`categories-sidebar ${isSidebarOpen ? "open" : "closed"}`}>
+      <button className="hamburger-btn" onClick={toggleSidebar}>
+        <span className="hamburger-icon"></span>
+      </button>
+      {isSidebarOpen && (
+        <>
+          <h3>Danh mục</h3>
+          {categoriesItem()}
+          <button
+            className={`add-button ${isOpenAddCate ? "open" : "closed"}`}
+            onClick={openAddCate}
+          >
+            {isOpenAddCate ? "x" : "+"}
+          </button>
+          {isOpenAddCate && (
+            <>
+              <div className="add-category">
+                <input
+                  placeholder="Tên danh mục"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                />
+                <button
+                  type="submit"
+                  onClick={handleAddCategory}
+                  disabled={loading}
+                >
+                  +
+                </button>
+              </div>
+              <p className="error">{error}</p>
+            </>
+          )}
+        </>
       )}
     </div>
   );
