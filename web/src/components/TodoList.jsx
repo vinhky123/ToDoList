@@ -1,33 +1,30 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles/todolist.css";
-import Select from "react-select";
-import { useForm } from "react-hook-form";
-import { TextField, Button } from "@mui/material";
-import { color } from "framer-motion";
+import Loader from "../components/Loader";
 
 function TodoList({ token, selectedCategory }) {
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState("");
-  const [dueDate, setDueDate] = useState(null);
+  const [dueDate, setDueDate] = useState("");
   const [newTodoPriority, setNewTodoPriority] = useState("");
   const [loading, setLoading] = useState(false);
   const [expandedTodo, setExpandedTodo] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!token || !selectedCategory) return;
     const fetchTodos = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `/api/categories/${selectedCategory.id}/todos`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await axios.get(`/api/todos/${selectedCategory.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setTodos(response.data);
+        console.log(todos.length);
       } catch (error) {
         console.error("Lỗi khi lấy todos:", error);
+        setError("Không thể tải danh sách công việc. Vui lòng thử lại.");
       } finally {
         setLoading(false);
       }
@@ -36,7 +33,11 @@ function TodoList({ token, selectedCategory }) {
   }, [token, selectedCategory]);
 
   const handleAddTodo = async () => {
-    if (!newTodo.trim()) return;
+    if (!newTodo.trim()) {
+      setError("Vui lòng nhập tiêu đề công việc!");
+      return;
+    }
+
     try {
       const response = await axios.post(
         `/api/todos/${selectedCategory.id}`,
@@ -45,8 +46,24 @@ function TodoList({ token, selectedCategory }) {
       );
       setTodos([...todos, response.data]);
       setNewTodo("");
+      setDueDate("");
+      setNewTodoPriority("");
+      setError("");
     } catch (error) {
       console.error("Lỗi khi thêm todo:", error);
+      setError("Không thể thêm công việc. Vui lòng thử lại.");
+    }
+  };
+
+  const handleDeleteTodo = async (TodoID) => {
+    try {
+      await axios.delete(`api/todos/${selectedCategory.id}/${TodoID}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTodos(todos.filter((todo) => todo.id !== TodoID));
+      setError("");
+    } catch (error) {
+      setError("Không thể xóa công việc. Vui lòng thử lại.");
     }
   };
 
@@ -59,24 +76,58 @@ function TodoList({ token, selectedCategory }) {
   };
 
   const priorityOptions = [
+    { value: "", label: "-- Ưu tiên --" },
     { value: "low", label: "Thấp" },
     { value: "medium", label: "Trung bình" },
     { value: "high", label: "Cao" },
   ];
 
-  // Function to get background color based on priority
   const getPriorityColor = (priority) => {
     switch (priority) {
       case "high":
-        return "#d6eadf";
+        return "#f37324";
       case "medium":
-        return "#fdffb6";
+        return "#f8cc1b";
       case "low":
-        return "#caffbf";
+        return "#72b043";
       default:
         return "#ffffff";
     }
   };
+
+  function todoList() {
+    if (loading) return <Loader />;
+
+    if (todos.length === 0)
+      return <p className="no-todo-warning">Chưa có công việc nào!</p>;
+
+    return (
+      <ul className="todos">
+        {todos.map((todo) => (
+          <li
+            key={todo.id}
+            className="todo-item"
+            style={{
+              border: "solid 4px" + getPriorityColor(todo.priority),
+              padding: "10px",
+              margin: "5px 0",
+              borderRadius: "10px",
+            }}
+          >
+            <span className="title-todo">
+              <h3>{todo.title}</h3>
+            </span>
+            <button
+              className="delete-todo-button"
+              onClick={() => todo?.id && handleDeleteTodo(todo.id)}
+            >
+              x
+            </button>
+          </li>
+        ))}
+      </ul>
+    );
+  }
 
   return (
     <div className="todo-list">
@@ -102,16 +153,16 @@ function TodoList({ token, selectedCategory }) {
         </div>
         <div className="input-priority">
           <p className="selection-title">Độ ưu tiên:</p>
-          <Select
-            options={priorityOptions}
-            value={priorityOptions.find(
-              (option) => option.value === newTodoPriority
-            )}
-            onChange={(option) =>
-              setNewTodoPriority(option ? option.value : "")
-            }
-            placeholder="-- Ưu tiên --"
-          />
+          <select
+            value={newTodoPriority}
+            onChange={(e) => setNewTodoPriority(e.target.value)}
+          >
+            {priorityOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="input-todos-button">
           <div className="empty">a</div>
@@ -119,33 +170,14 @@ function TodoList({ token, selectedCategory }) {
         </div>
       </div>
 
-      {loading ? (
-        <p>Đang tải...</p>
-      ) : todos.length === 0 ? (
-        <p className="no-todo-warning">Chưa có công việc nào!</p>
-      ) : (
-        <ul className="todos">
-          {todos.map((todo) => (
-            <li
-              key={todo.id}
-              className="todo-item"
-              style={{
-                backgroundColor: getPriorityColor(todo.priority),
-                padding: "10px", // Optional: adds some padding for better appearance
-                margin: "5px 0", // Optional: adds some spacing between items
-                borderRadius: "4px", // Optional: adds rounded corners
-              }}
-            >
-              <h3>{todo.title}</h3>
-
-              {expandedTodo === todo.id && (
-                <div className="subtasks">
-                  <p>Chưa có subtask (cần thêm API và logic).</p>
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
+      {todoList()}
+      {error && (
+        <p
+          className="error-message"
+          style={{ color: "red", fontSize: "14px", marginTop: "10px" }}
+        >
+          {error}
+        </p>
       )}
     </div>
   );

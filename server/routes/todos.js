@@ -23,7 +23,7 @@ router.get("/:idCategory", auth, async (req, res) => {
 
   try {
     const { rows } = await req.db.query(
-      "SELECT t.*, c.name as category_name FROM categories c LEFT JOIN todos t ON c.id = t.category_id WHERE c.user_id = $1 AND c.id = $2",
+      "SELECT t.*, c.name as category_name FROM categories c JOIN todos t ON c.id = t.category_id WHERE c.user_id = $1 AND c.id = $2",
       [userID, idCategory]
     );
 
@@ -39,6 +39,9 @@ router.post("/:idCategory", auth, async (req, res) => {
   const { idCategory } = req.params;
   const { title, dueDate, priority } = req.body;
 
+  const processedDueDate =
+    dueDate === "" || dueDate === undefined ? null : dueDate;
+
   try {
     const { rows: userCategories } = await req.db.query(
       "SELECT user_id FROM categories WHERE id = $1",
@@ -52,12 +55,39 @@ router.post("/:idCategory", auth, async (req, res) => {
 
     const { rows } = await req.db.query(
       "INSERT INTO todos (title, category_id, due_date, priority) VALUES ($1, $2, $3, $4) RETURNING *",
-      [title, idCategory, dueDate, priority]
+      [title, idCategory, processedDueDate, priority]
     );
 
     res.status(201).json(rows[0]);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ message: "Có lỗi khi thêm dữ liệu" });
+  }
+});
+
+// Xóa todo vào một category
+router.delete("/:idCategory/:id", auth, async (req, res) => {
+  const userID = req.userId;
+  const idCategory = req.params.idCategory;
+  const id = req.params.id;
+  try {
+    const { rows: userCategories } = await req.db.query(
+      "SELECT user_id FROM categories WHERE id = $1",
+      [idCategory]
+    );
+    if (userCategories.length === 0 || userCategories[0].user_id != userID) {
+      return res
+        .status(403)
+        .json({ error: "Danh mục không thuộc về bạn hoặc không tồn tại" });
+    }
+
+    const { rows } = await req.db.query("DELETE FROM todos WHERE id = $1", [
+      id,
+    ]);
+
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ message: "Có lỗi khi xóa dữ liệu" });
   }
 });
 

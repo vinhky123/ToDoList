@@ -1,11 +1,9 @@
-// CategoriesList.jsx
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Loader from "../components/Loader";
 import "../styles/categories.css";
 
 function CategoriesList({ token, onCategorySelect }) {
-  // Thêm prop onCategorySelect
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState("");
   const [loading, setLoading] = useState(false);
@@ -44,6 +42,7 @@ function CategoriesList({ token, onCategorySelect }) {
       setNewCategory("");
     } catch (error) {
       setError(error.response?.data?.error || "Lỗi không xác định");
+      setNewCategory(""); // Đảm bảo reset ngay cả khi lỗi
     }
   };
 
@@ -71,13 +70,13 @@ function CategoriesList({ token, onCategorySelect }) {
           <li
             key={category.id}
             className="category-item"
-            onClick={() => onCategorySelect(category)} // Thêm sự kiện chọn
+            onClick={() => onCategorySelect(category)}
           >
             <span className="category-name">{category.name}</span>
             <button
               className="delete-btn"
               onClick={(e) => {
-                e.stopPropagation(); // Ngăn sự kiện click lan lên li
+                e.stopPropagation();
                 handleDeleteCategory(category.id);
               }}
             >

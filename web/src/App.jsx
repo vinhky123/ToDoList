@@ -8,6 +8,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { useEffect } from "react";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import TodoList from "./components/TodoList";
@@ -15,6 +16,7 @@ import ForgetPassword from "./components/ForgetPassword";
 import ResetPassword from "./components/ResetPassword";
 import NavBar from "./assets/NavBar";
 import CategoriesList from "./assets/CategoriesList";
+import axios from "axios";
 import "./App.css";
 
 function App() {
@@ -24,12 +26,27 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     setToken("");
-    setSelectedCategory(null); // Reset danh mục khi logout
+    setSelectedCategory(null);
   };
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
   };
+
+  const checkTokenSession = async () => {
+    try {
+      const response = await axios.get("/api/auth/me");
+    } catch (error) {
+      console.log(error);
+      if (error.status === 401) {
+        handleLogout();
+      }
+    }
+  };
+
+  useEffect(() => {
+    checkTokenSession();
+  }, []);
 
   return (
     <Router>
@@ -98,12 +115,12 @@ function RouteTransition({ children }) {
 function Home({ token, selectedCategory }) {
   return (
     <>
-      {token ? <></> : <h1>Chào mừng đến với ứng dụng To-Do List!</h1>}
-
-      {token && selectedCategory ? (
-        <TodoList token={token} selectedCategory={selectedCategory} />
-      ) : (
+      {!token ? (
+        <h1>Chào mừng đến với ứng dụng To-Do List!</h1>
+      ) : !selectedCategory ? (
         <h1>Chọn 1 danh mục hoặc tạo mới</h1>
+      ) : (
+        <TodoList token={token} selectedCategory={selectedCategory} />
       )}
     </>
   );
