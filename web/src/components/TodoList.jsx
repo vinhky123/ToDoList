@@ -95,6 +95,39 @@ function TodoList({ token, selectedCategory }) {
     }
   };
 
+  const formatDate = (dateString) => {
+    const options = {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    };
+    return new Intl.DateTimeFormat("vi-VN", options).format(
+      new Date(dateString)
+    );
+  };
+
+  const getDueStatus = (dueDate) => {
+    const now = new Date();
+    const due = new Date(dueDate);
+    const diffMs = due - now;
+    const diffHours = diffMs / (1000 * 60 * 60);
+
+    if (diffHours <= 0) {
+      return "Quá hạn";
+    } else if (diffHours < 24) {
+      const hoursLeft = Math.floor(diffHours);
+      return `Còn ${hoursLeft} tiếng`;
+    } else if (diffHours <= 480) {
+      const dayLeft = ~~(diffHours / 24);
+      return `Còn ${dayLeft} ngày`;
+    } else {
+      return formatDate(dueDate);
+    }
+  };
+
   function todoList() {
     if (loading) return <Loader />;
 
@@ -110,12 +143,18 @@ function TodoList({ token, selectedCategory }) {
             style={{
               border: "solid 4px" + getPriorityColor(todo.priority),
               padding: "10px",
-              margin: "5px 0",
+              margin: "20px 0",
               borderRadius: "10px",
+              boxShadow: "5px 5px 8px rgba(0, 0, 0, 0.1)",
             }}
           >
             <span className="title-todo">
               <h3>{todo.title}</h3>
+              <div>
+                <span>Due: {getDueStatus(todo.due_date)}</span>
+                <br></br>
+                <span>Completed: {todo.completed ? "Yes" : "No"}</span>
+              </div>
             </span>
             <button
               className="delete-todo-button"
