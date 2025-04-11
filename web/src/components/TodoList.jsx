@@ -120,11 +120,9 @@ function TodoList({ token, selectedCategory }) {
     } else if (diffHours < 24) {
       const hoursLeft = Math.floor(diffHours);
       return `Còn ${hoursLeft} tiếng`;
-    } else if (diffHours <= 480) {
+    } else {
       const dayLeft = ~~(diffHours / 24);
       return `Còn ${dayLeft} ngày`;
-    } else {
-      return formatDate(dueDate);
     }
   };
 
@@ -143,7 +141,7 @@ function TodoList({ token, selectedCategory }) {
             style={{
               border: "solid 4px" + getPriorityColor(todo.priority),
               padding: "10px",
-              margin: "20px 0",
+              margin: "10x 0",
               borderRadius: "10px",
               boxShadow: "5px 5px 8px rgba(0, 0, 0, 0.1)",
             }}
@@ -151,9 +149,18 @@ function TodoList({ token, selectedCategory }) {
             <span className="title-todo">
               <h3>{todo.title}</h3>
               <div>
-                <span>Due: {getDueStatus(todo.due_date)}</span>
+                <span>
+                  <b>Hạn:</b> {formatDate(todo.due_date)}
+                </span>
                 <br></br>
-                <span>Completed: {todo.completed ? "Yes" : "No"}</span>
+                <span>({getDueStatus(todo.due_date)})</span>
+                <br></br>
+                <span>
+                  <b>Đã hoàn thành: </b>
+                  {todo.completed ? "Rồi" : "Chưa"}
+                </span>
+                <br></br>
+                <span>Đánh dấu là đã hoàn thành</span>
               </div>
             </span>
             <button
