@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles/todolist.css";
 import Loader from "../components/Loader";
+import { header } from "framer-motion/client";
 
 function TodoList({ token, selectedCategory }) {
   const [todos, setTodos] = useState([]);
@@ -39,9 +40,14 @@ function TodoList({ token, selectedCategory }) {
     }
 
     try {
+      setLoading(true);
+      const payload = { title: newTodo };
+      if (dueDate) payload.dueDate = dueDate;
+      if (newTodoPriority) payload.priority = newTodoPriority;
+
       const response = await axios.post(
         `/api/todos/${selectedCategory.id}`,
-        { title: newTodo, dueDate: dueDate, priority: newTodoPriority },
+        payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setTodos([...todos, response.data]);
@@ -52,11 +58,14 @@ function TodoList({ token, selectedCategory }) {
     } catch (error) {
       console.error("Lỗi khi thêm todo:", error);
       setError("Không thể thêm công việc. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDeleteTodo = async (TodoID) => {
     try {
+      setLoading(true);
       await axios.delete(`api/todos/${selectedCategory.id}/${TodoID}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -64,6 +73,8 @@ function TodoList({ token, selectedCategory }) {
       setError("");
     } catch (error) {
       setError("Không thể xóa công việc. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -91,7 +102,7 @@ function TodoList({ token, selectedCategory }) {
       case "low":
         return "#72b043";
       default:
-        return "#ffffff";
+        return "none";
     }
   };
 
@@ -126,9 +137,30 @@ function TodoList({ token, selectedCategory }) {
     }
   };
 
-  function todoList() {
-    if (loading) return <Loader />;
+  const handleStatusDone = async (TodoID) => {
+    try {
+      setLoading(true);
+      await axios.put(
+        `api/todos/${selectedCategory.id}/${TodoID}/done`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setTodos(
+        todos.map((todo) =>
+          todo.id === TodoID ? { ...todo, completed: true } : todo
+        )
+      );
+    } catch (error) {
+      console.log(error);
+      console.log("Có lỗi xảy ra, vui lòng thử lại");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  function todoList() {
     if (todos.length === 0)
       return <p className="no-todo-warning">Chưa có công việc nào!</p>;
 
@@ -149,18 +181,36 @@ function TodoList({ token, selectedCategory }) {
             <span className="title-todo">
               <h3>{todo.title}</h3>
               <div>
+                {todo.due_date ? (
+                  <>
+                    <span>
+                      <b>Hạn: </b>
+                      {formatDate(todo.due_date)}
+                    </span>
+                    <br></br>
+                    <span>({getDueStatus(todo.due_date)})</span>
+                    <br></br>
+                  </>
+                ) : null}
+
                 <span>
-                  <b>Hạn:</b> {formatDate(todo.due_date)}
+                  {todo.completed ? (
+                    <b style={{ color: "green" }}>Đã xong</b>
+                  ) : (
+                    <b style={{ color: "red" }}>Chưa xong</b>
+                  )}
                 </span>
                 <br></br>
-                <span>({getDueStatus(todo.due_date)})</span>
-                <br></br>
-                <span>
-                  <b>Đã hoàn thành: </b>
-                  {todo.completed ? "Rồi" : "Chưa"}
-                </span>
-                <br></br>
-                <span>Đánh dấu là đã hoàn thành</span>
+                {todo.completed ? (
+                  <></>
+                ) : (
+                  <a
+                    onClick={() => handleStatusDone(todo.id)}
+                    className="status-done-mark"
+                  >
+                    Hoàn thành <b style={{ color: "green" }}>&#10003;</b>{" "}
+                  </a>
+                )}
               </div>
             </span>
             <button
@@ -176,56 +226,59 @@ function TodoList({ token, selectedCategory }) {
   }
 
   return (
-    <div className="todo-list">
-      <h2>{selectedCategory.name}</h2>
-      <p className="add-todos-text">Thêm công việc mới</p>
-      <div className="add-todo">
-        <div className="input-title">
-          <p className="selection-title">Tựa đề:</p>
-          <input
-            placeholder={selectedCategory.name}
-            value={newTodo}
-            onChange={(e) => setNewTodo(e.target.value)}
-          />
+    <>
+      {loading ? <Loader /> : <></>}
+      <div className="todo-list">
+        <h2>{selectedCategory.name}</h2>
+        <p className="add-todos-text">Thêm công việc mới</p>
+        <div className="add-todo">
+          <div className="input-title">
+            <p className="selection-title">Tựa đề:</p>
+            <input
+              placeholder={selectedCategory.name}
+              value={newTodo}
+              onChange={(e) => setNewTodo(e.target.value)}
+            />
+          </div>
+          <div className="input-duedate">
+            <p className="selection-title">Thời gian hết hạn:</p>
+            <input
+              type="datetime-local"
+              id="dateInput"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+            />
+          </div>
+          <div className="input-priority">
+            <p className="selection-title">Độ ưu tiên:</p>
+            <select
+              value={newTodoPriority}
+              onChange={(e) => setNewTodoPriority(e.target.value)}
+            >
+              {priorityOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="input-todos-button">
+            <div className="empty">a</div>
+            <button onClick={handleAddTodo}>+</button>
+          </div>
         </div>
-        <div className="input-duedate">
-          <p className="selection-title">Thời gian hết hạn:</p>
-          <input
-            type="datetime-local"
-            id="dateInput"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-          />
-        </div>
-        <div className="input-priority">
-          <p className="selection-title">Độ ưu tiên:</p>
-          <select
-            value={newTodoPriority}
-            onChange={(e) => setNewTodoPriority(e.target.value)}
-          >
-            {priorityOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="input-todos-button">
-          <div className="empty">a</div>
-          <button onClick={handleAddTodo}>+</button>
-        </div>
-      </div>
 
-      {todoList()}
-      {error && (
-        <p
-          className="error-message"
-          style={{ color: "red", fontSize: "14px", marginTop: "10px" }}
-        >
-          {error}
-        </p>
-      )}
-    </div>
+        {todoList()}
+        {error && (
+          <p
+            className="error-message"
+            style={{ color: "red", fontSize: "14px", marginTop: "10px" }}
+          >
+            {error}
+          </p>
+        )}
+      </div>
+    </>
   );
 }
 

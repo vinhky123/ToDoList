@@ -42,18 +42,11 @@
 
 .content {
   display: flex;
-  justify-content: baseline;
-  flex-direction: column;
-  align-items: center;
+  width: 100%;
 }
 
 .mainPage {
   display: flex;
   flex-direction: row;
   justify-content: center;
-}
-
-.content {
-  width: 100%;
-  padding: 50px;
 }

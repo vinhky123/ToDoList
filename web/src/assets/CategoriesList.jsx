@@ -31,6 +31,7 @@ function CategoriesList({ token, onCategorySelect }) {
 
   const handleAddCategory = async () => {
     setError("");
+    setLoading(true);
     if (!newCategory.trim()) return;
     try {
       const response = await axios.post(
@@ -43,11 +44,14 @@ function CategoriesList({ token, onCategorySelect }) {
     } catch (error) {
       setError(error.response?.data?.error || "Lỗi không xác định");
       setNewCategory(""); // Đảm bảo reset ngay cả khi lỗi
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDeleteCategory = async (categoryId) => {
     setError("");
+    setLoading(true);
     try {
       await axios.delete(`/api/categories/${categoryId}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -57,11 +61,12 @@ function CategoriesList({ token, onCategorySelect }) {
       );
     } catch (error) {
       setError(error.response?.data?.error || "Không thể xóa danh mục");
+    } finally {
+      setLoading(false);
     }
   };
 
   const categoriesItem = () => {
-    if (loading) return <Loader />;
     if (categories.length === 0)
       return <p className="no-categories">Chưa có danh mục nào!</p>;
     return (
@@ -93,6 +98,7 @@ function CategoriesList({ token, onCategorySelect }) {
 
   return (
     <div className={`categories-sidebar ${isSidebarOpen ? "open" : "closed"}`}>
+      {loading ? <Loader /> : <></>}
       <button className="hamburger-btn" onClick={toggleSidebar}>
         <span className="hamburger-icon"></span>
       </button>

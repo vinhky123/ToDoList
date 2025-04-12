@@ -23,7 +23,7 @@ router.get("/:idCategory", auth, async (req, res) => {
 
   try {
     const { rows } = await req.db.query(
-      "SELECT t.*, c.name as category_name FROM categories c JOIN todos t ON c.id = t.category_id WHERE c.user_id = $1 AND c.id = $2",
+      "SELECT t.*, c.name as category_name FROM categories c JOIN todos t ON c.id = t.category_id WHERE c.user_id = $1 AND c.id = $2 ORDER BY t.due_date ASC",
       [userID, idCategory]
     );
 
@@ -42,6 +42,9 @@ router.post("/:idCategory", auth, async (req, res) => {
   const processedDueDate =
     dueDate === "" || dueDate === undefined ? null : dueDate;
 
+  const processedPriority =
+    priority === "" || priority === undefined ? null : priority;
+
   try {
     const { rows: userCategories } = await req.db.query(
       "SELECT user_id FROM categories WHERE id = $1",
@@ -55,7 +58,7 @@ router.post("/:idCategory", auth, async (req, res) => {
 
     const { rows } = await req.db.query(
       "INSERT INTO todos (title, category_id, due_date, priority) VALUES ($1, $2, $3, $4) RETURNING *",
-      [title, idCategory, processedDueDate, priority]
+      [title, idCategory, processedDueDate, processedPriority]
     );
 
     res.status(201).json(rows[0]);
@@ -65,7 +68,7 @@ router.post("/:idCategory", auth, async (req, res) => {
   }
 });
 
-// Xóa todo vào một category
+// Xóa todo của một category
 router.delete("/:idCategory/:id", auth, async (req, res) => {
   const userID = req.userId;
   const idCategory = req.params.idCategory;
@@ -92,3 +95,30 @@ router.delete("/:idCategory/:id", auth, async (req, res) => {
 });
 
 export default router;
+
+// Đánh dấu là 1 task đã hoàn thành
+router.put("/:idCategory/:id/done", auth, async (req, res) => {
+  const userID = req.userId;
+  const idCategory = req.params.idCategory;
+  const id = req.params.id;
+  try {
+    const { rows: userCategories } = await req.db.query(
+      "SELECT user_id FROM categories WHERE id = $1",
+      [idCategory]
+    );
+    if (userCategories.length === 0 || userCategories[0].user_id != userID) {
+      return res
+        .status(403)
+        .json({ error: "Danh mục không thuộc về bạn hoặc không tồn tại" });
+    }
+
+    const { rows } = await req.db.query(
+      "UPDATE todos SET completed = TRUE WHERE id = $1",
+      [id]
+    );
+
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ message: "Có lỗi khi đánh dấu là hoàn thành" });
+  }
+});

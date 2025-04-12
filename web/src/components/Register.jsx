@@ -62,66 +62,68 @@ function Register({ setToken }) {
   };
 
   return (
-    <div className="login-form">
-      <h2>Đăng ký</h2>
-      {error && <div className="error">{error}</div>}
-      {loading ? (
-        <Loader />
-      ) : (
-        <form>
-          <div className="form-group">
-            <input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              autoComplete="new-password"
-            />
-          </div>
-          <div className="form-group">
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-            />
-          </div>
-          <div className="form-group">
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div className="form-group">
-            <input
-              type="text"
-              placeholder="First Name"
-              value={firstname}
-              onChange={(e) => setFirstname(e.target.value)}
-              autoComplete="new-password"
-            />
-          </div>
-          <div className="form-group">
-            <input
-              type="text"
-              placeholder="Last Name"
-              value={lastname}
-              onChange={(e) => setLastname(e.target.value)}
-              autoComplete="new-password"
-            />
-          </div>
-          <button
-            className="login-button"
-            onClick={handleRegister}
-            disabled={loading}
-          >
-            Đăng ký
-          </button>
-        </form>
-      )}
+    <div className="login-container">
+      <div className="login-form">
+        <h2>Đăng ký</h2>
+        {error && <div className="error">{error}</div>}
+        {loading ? (
+          <Loader />
+        ) : (
+          <form>
+            <div className="form-group">
+              <input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoComplete="new-password"
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="text"
+                placeholder="First Name"
+                value={firstname}
+                onChange={(e) => setFirstname(e.target.value)}
+                autoComplete="new-password"
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="text"
+                placeholder="Last Name"
+                value={lastname}
+                onChange={(e) => setLastname(e.target.value)}
+                autoComplete="new-password"
+              />
+            </div>
+            <button
+              className="login-button"
+              onClick={handleRegister}
+              disabled={loading}
+            >
+              Đăng ký
+            </button>
+          </form>
+        )}
+      </div>
     </div>
   );
 }

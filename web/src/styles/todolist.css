@@ -88,7 +88,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  border-bottom: 1px solid #ccc;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.todo-item:hover {
+  background-color: #e8edf1;
 }
 
 .title-todo {
@@ -120,4 +126,13 @@
 
 .input-priority:focus {
   outline: none;
+}
+
+.status-done-mark {
+  cursor: pointer;
+}
+
+.status-done-mark:hover {
+  color: blue;
+  text-decoration: underline;
 }

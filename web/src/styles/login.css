@@ -2,6 +2,16 @@ form {
   width: 100%;
 }
 
+.login-container {
+  height: inherit;
+  width: inherit;
+  display: flex;
+  justify-content: baseline;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 100px;
+}
+
 .login-form {
   background-color: #ffffff;
   padding: 30px;

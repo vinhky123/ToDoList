@@ -2,7 +2,6 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import sendEmail from "../utils/sendmail.js";
-import rateLimit from "express-rate-limit";
 import { auth } from "../middleware/auth.js";
 
 const router = express.Router();
@@ -59,7 +58,7 @@ router.post("/login", async (req, res) => {
     }
 
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "30d",
     });
 
     res.json({ token });

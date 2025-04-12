@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import Loader from "./Loader";
+import "../styles/login.css";
 
 function ForgetPassword() {
   const [email, setEmail] = useState("");
@@ -30,14 +31,11 @@ function ForgetPassword() {
   };
 
   return (
-    <div>
-      <h2>Quên mật khẩu</h2>
-      {error && <div className="error">{error}</div>}
-      {message && <div className="success">{message}</div>}
-      {loading ? (
-        <Loader />
-      ) : (
-        <>
+    <>
+      {loading ? <Loader /> : <></>}
+      <div className="login-container">
+        <div className="login-form">
+          <h2>Quên mật khẩu</h2>
           <div className="form-group">
             <input
               type="email"
@@ -50,9 +48,23 @@ function ForgetPassword() {
           <button onClick={handleForgetPassword} disabled={loading}>
             Gửi yêu cầu
           </button>
-        </>
-      )}
-    </div>
+
+          {error && (
+            <div style={{ color: "red", marginTop: "10px" }} className="error">
+              {error}
+            </div>
+          )}
+          {message && (
+            <div
+              className="success"
+              style={{ color: "green", marginTop: "10px" }}
+            >
+              {message}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
   );
 }
 

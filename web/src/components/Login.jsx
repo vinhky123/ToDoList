@@ -40,44 +40,46 @@ function Login({ setToken }) {
   };
 
   return (
-    <div className="login-form">
-      <h2>Đăng nhập</h2>
-      {error && <div className="error">{error}</div>}
-      {loading ? (
-        <Loader />
-      ) : (
-        <>
-          <div className="form-group">
-            <input
-              type="text"
-              placeholder="User name"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              autoComplete="new-password"
-            />
-          </div>
-          <div className="form-group">
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-            />
-          </div>
-          <p style={{ margin: "10px 0px" }}>
-            <Link to="/forget">Quên mật khẩu</Link>
-          </p>
-          <button
-            className="login-button"
-            type="submit"
-            onClick={handleLogin}
-            disabled={loading}
-          >
-            Đăng nhập
-          </button>
-        </>
-      )}
+    <div className="login-container">
+      <div className="login-form">
+        <h2>Đăng nhập</h2>
+        {error && <div className="error">{error}</div>}
+        {loading ? (
+          <Loader />
+        ) : (
+          <>
+            <div className="form-group">
+              <input
+                type="text"
+                placeholder="User name"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoComplete="new-password"
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+              />
+            </div>
+            <p style={{ margin: "10px 0px" }}>
+              <Link to="/forget">Quên mật khẩu</Link>
+            </p>
+            <button
+              className="login-button"
+              type="submit"
+              onClick={handleLogin}
+              disabled={loading}
+            >
+              Đăng nhập
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 }

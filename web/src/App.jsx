@@ -1,4 +1,3 @@
-// App.jsx
 import { useState } from "react";
 import {
   BrowserRouter as Router,
@@ -21,7 +20,7 @@ import "./App.css";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
-  const [selectedCategory, setSelectedCategory] = useState(null); // Thêm trạng thái danh mục
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -35,7 +34,11 @@ function App() {
 
   const checkTokenSession = async () => {
     try {
-      const response = await axios.get("/api/auth/me");
+      await axios.post(
+        `/api/auth/me`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
     } catch (error) {
       console.log(error);
       if (error.status === 401) {
@@ -114,7 +117,7 @@ function RouteTransition({ children }) {
 
 function Home({ token, selectedCategory }) {
   return (
-    <>
+    <div className="welcome-message">
       {!token ? (
         <h1>Chào mừng đến với ứng dụng To-Do List!</h1>
       ) : !selectedCategory ? (
@@ -122,7 +125,7 @@ function Home({ token, selectedCategory }) {
       ) : (
         <TodoList token={token} selectedCategory={selectedCategory} />
       )}
-    </>
+    </div>
   );
 }
 
