@@ -3,10 +3,9 @@ import axios from "axios";
 import Loader from "../components/Loader";
 import "../styles/categories.css";
 
-function CategoriesList({ token, onCategorySelect }) {
+function CategoriesList({ token, onCategorySelect, setLoading }) {
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState("");
-  const [loading, setLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isOpenAddCate, setIsOpenAddCate] = useState(false);
   const [error, setError] = useState("");
@@ -98,7 +97,6 @@ function CategoriesList({ token, onCategorySelect }) {
 
   return (
     <div className={`categories-sidebar ${isSidebarOpen ? "open" : "closed"}`}>
-      {loading ? <Loader /> : <></>}
       <button className="hamburger-btn" onClick={toggleSidebar}>
         <span className="hamburger-icon"></span>
       </button>
@@ -120,9 +118,7 @@ function CategoriesList({ token, onCategorySelect }) {
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
                 />
-                <button onClick={handleAddCategory} disabled={loading}>
-                  +
-                </button>
+                <button onClick={handleAddCategory}>+</button>
               </div>
               <p className="error">{error}</p>
             </>

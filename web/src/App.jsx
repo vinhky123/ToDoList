@@ -15,12 +15,14 @@ import ForgetPassword from "./components/ForgetPassword";
 import ResetPassword from "./components/ResetPassword";
 import NavBar from "./assets/NavBar";
 import CategoriesList from "./assets/CategoriesList";
+import Loader from "./components/Loader";
 import axios from "axios";
 import "./App.css";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -54,24 +56,41 @@ function App() {
   return (
     <Router>
       <div className="container">
-        <NavBar token={token} handleLogout={handleLogout} />
+        <NavBar
+          token={token}
+          handleLogout={handleLogout}
+          setLoading={setLoading}
+        />
+        {loading ? <Loader /> : <></>}
         <div className="mainPage">
           {token && (
             <CategoriesList
               token={token}
               onCategorySelect={handleCategorySelect}
+              setLoading={setLoading}
             />
           )}
 
           <RouteTransition>
             <Routes>
-              <Route path="/login" element={<Login setToken={setToken} />} />
+              <Route
+                path="/login"
+                element={<Login setToken={setToken} setLoading={setLoading} />}
+              />
               <Route
                 path="/register"
-                element={<Register setToken={setToken} />}
+                element={
+                  <Register setToken={setToken} setLoading={setLoading} />
+                }
               />
-              <Route path="/forget" element={<ForgetPassword />} />
-              <Route path="/reset" element={<ResetPassword />} />
+              <Route
+                path="/forget"
+                element={<ForgetPassword setLoading={setLoading} />}
+              />
+              <Route
+                path="/reset"
+                element={<ResetPassword setLoading={setLoading} />}
+              />
               <Route
                 path="/todos"
                 element={
@@ -117,7 +136,14 @@ function RouteTransition({ children }) {
 
 function Home({ token, selectedCategory }) {
   return (
-    <div className="welcome-message">
+    <div
+      style={{
+        display: "flex",
+        width: "100%",
+        justifyContent: "center",
+      }}
+      className="welcome-message"
+    >
       {!token ? (
         <h1>Chào mừng đến với ứng dụng To-Do List!</h1>
       ) : !selectedCategory ? (

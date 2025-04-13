@@ -4,11 +4,10 @@ import { useNavigate, Link } from "react-router-dom";
 import Loader from "./Loader";
 import "../styles/login.css";
 
-function Login({ setToken }) {
+function Login({ setToken, setLoading }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -44,41 +43,32 @@ function Login({ setToken }) {
       <div className="login-form">
         <h2>Đăng nhập</h2>
         {error && <div className="error">{error}</div>}
-        {loading ? (
-          <Loader />
-        ) : (
-          <>
-            <div className="form-group">
-              <input
-                type="text"
-                placeholder="User name"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                autoComplete="new-password"
-              />
-            </div>
-            <div className="form-group">
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="new-password"
-              />
-            </div>
-            <p style={{ margin: "10px 0px" }}>
-              <Link to="/forget">Quên mật khẩu</Link>
-            </p>
-            <button
-              className="login-button"
-              type="submit"
-              onClick={handleLogin}
-              disabled={loading}
-            >
-              Đăng nhập
-            </button>
-          </>
-        )}
+        <>
+          <div className="form-group">
+            <input
+              type="text"
+              placeholder="User name"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoComplete="new-password"
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
+            />
+          </div>
+          <p style={{ margin: "10px 0px" }}>
+            <Link to="/forget">Quên mật khẩu</Link>
+          </p>
+          <button className="login-button" type="submit" onClick={handleLogin}>
+            Đăng nhập
+          </button>
+        </>
       </div>
     </div>
   );

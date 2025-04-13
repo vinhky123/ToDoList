@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 import axios from "axios";
 
-function NavBar({ token, handleLogout }) {
+function NavBar({ token, handleLogout, setLoading }) {
   const [firstname, setFirstname] = useState("");
 
   useEffect(() => {

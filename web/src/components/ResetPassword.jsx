@@ -3,14 +3,13 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Loader from "./Loader";
 
-function ResetPassword() {
+function ResetPassword(setLoading) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const token = searchParams.get("token");
 
@@ -56,31 +55,27 @@ function ResetPassword() {
       <h2>Đặt lại mật khẩu</h2>
       {error && <div className="error">{error}</div>}
       {message && <div className="success">{message}</div>}
-      {loading ? (
-        <Loader />
-      ) : (
-        <>
-          <div className="form-group">
-            <input
-              type="password"
-              placeholder="Mật khẩu mới"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              disabled={loading}
-            />
-            <input
-              type="password"
-              placeholder="Xác nhận mật khẩu"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              disabled={loading}
-            />
-          </div>
-          <button onClick={handleResetPassword} disabled={loading}>
-            Đặt lại mật khẩu
-          </button>
-        </>
-      )}
+      <>
+        <div className="form-group">
+          <input
+            type="password"
+            placeholder="Mật khẩu mới"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            disabled={loading}
+          />
+          <input
+            type="password"
+            placeholder="Xác nhận mật khẩu"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            disabled={loading}
+          />
+        </div>
+        <button onClick={handleResetPassword} disabled={loading}>
+          Đặt lại mật khẩu
+        </button>
+      </>
     </div>
   );
 }

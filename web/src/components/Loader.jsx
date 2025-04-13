@@ -5,12 +5,12 @@ const styles = `
     height: 100%;
     width: 100%;
     position: absolute;
-    background-color: rgba(83, 83, 83, 0.4)
+    background-color: rgba(155, 150, 150, 0.3);
+    z-index: 11;  
   }
 
   .spinner {
     display: flex;
-
   }
 `;
 

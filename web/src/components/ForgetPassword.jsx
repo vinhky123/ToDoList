@@ -3,11 +3,10 @@ import axios from "axios";
 import Loader from "./Loader";
 import "../styles/login.css";
 
-function ForgetPassword() {
+function ForgetPassword(setLoading) {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const handleForgetPassword = async () => {
     if (!email) {
@@ -32,7 +31,6 @@ function ForgetPassword() {
 
   return (
     <>
-      {loading ? <Loader /> : <></>}
       <div className="login-container">
         <div className="login-form">
           <h2>Quên mật khẩu</h2>
@@ -42,12 +40,9 @@ function ForgetPassword() {
               placeholder="Nhập email của bạn"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
             />
           </div>
-          <button onClick={handleForgetPassword} disabled={loading}>
-            Gửi yêu cầu
-          </button>
+          <button onClick={handleForgetPassword}>Gửi yêu cầu</button>
 
           {error && (
             <div style={{ color: "red", marginTop: "10px" }} className="error">

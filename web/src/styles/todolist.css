@@ -79,7 +79,7 @@
 }
 
 .todo-item {
-  width: 80%;
+  width: 40%;
   display: flex;
   justify-content: space-between;
   padding: 100px;
