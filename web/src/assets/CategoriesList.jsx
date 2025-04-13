@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import Loader from "../components/Loader";
 import "../styles/categories.css";
 
 function CategoriesList({ token, onCategorySelect, setLoading }) {
@@ -10,6 +10,7 @@ function CategoriesList({ token, onCategorySelect, setLoading }) {
   const [isOpenAddCate, setIsOpenAddCate] = useState(false);
   const [error, setError] = useState("");
 
+  const navigate = useNavigate();
   useEffect(() => {
     if (!token) return;
     const fetchCategories = async () => {
@@ -74,7 +75,10 @@ function CategoriesList({ token, onCategorySelect, setLoading }) {
           <li
             key={category.id}
             className="category-item"
-            onClick={() => onCategorySelect(category)}
+            onClick={() => {
+              onCategorySelect(category);
+              navigate("/");
+            }}
           >
             <span className="category-name">{category.name}</span>
             <button

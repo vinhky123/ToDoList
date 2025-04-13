@@ -89,12 +89,7 @@
   align-items: center;
   padding: 10px;
   border: none;
-  cursor: pointer;
   transition: all 0.2s ease;
-}
-
-.todo-item:hover {
-  background-color: #e8edf1;
 }
 
 .title-todo {
@@ -104,8 +99,8 @@
 
 .delete-todo-button {
   border-radius: 50%;
-  height: 20px;
-  width: 20px;
+  height: 30px;
+  width: 30px;
   padding: 0;
   background-color: red;
   transition: all 0, 3s ease;
@@ -135,4 +130,21 @@
 .status-done-mark:hover {
   color: blue;
   text-decoration: underline;
+}
+
+.delete-notes-button-container {
+  display: flex;
+  height: 100%;
+  flex-direction: column-reverse;
+  justify-content: space-around;
+}
+
+.notes-button {
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.notes-button:hover {
+  background-color: rgb(221, 224, 226);
 }

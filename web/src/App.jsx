@@ -6,6 +6,7 @@ import {
   useNavigate,
   useLocation,
 } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
 import Login from "./components/Login";
@@ -13,6 +14,7 @@ import Register from "./components/Register";
 import TodoList from "./components/TodoList";
 import ForgetPassword from "./components/ForgetPassword";
 import ResetPassword from "./components/ResetPassword";
+import NotesPage from "./components/NotePages";
 import NavBar from "./assets/NavBar";
 import CategoriesList from "./assets/CategoriesList";
 import Loader from "./components/Loader";
@@ -65,6 +67,7 @@ function App() {
         <div className="mainPage">
           {token && (
             <CategoriesList
+              path="/category"
               token={token}
               onCategorySelect={handleCategorySelect}
               setLoading={setLoading}
@@ -104,6 +107,8 @@ function App() {
                   )
                 }
               />
+
+              <Route path="/todos/notes/:Id" element={<NotesPage />} />
               <Route
                 path="/"
                 element={

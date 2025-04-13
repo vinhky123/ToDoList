@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles/todolist.css";
 import Loader from "../components/Loader";
-import { header } from "framer-motion/client";
+import { Link } from "react-router-dom";
 
 function TodoList({ token, selectedCategory }) {
   const [todos, setTodos] = useState([]);
@@ -22,7 +22,6 @@ function TodoList({ token, selectedCategory }) {
           headers: { Authorization: `Bearer ${token}` },
         });
         setTodos(response.data);
-        console.log(todos.length);
       } catch (error) {
         console.error("Lỗi khi lấy todos:", error);
         setError("Không thể tải danh sách công việc. Vui lòng thử lại.");
@@ -63,7 +62,8 @@ function TodoList({ token, selectedCategory }) {
     }
   };
 
-  const handleDeleteTodo = async (TodoID) => {
+  const handleDeleteTodo = async (TodoID, event) => {
+    event.stopPropagation();
     try {
       setLoading(true);
       await axios.delete(`api/todos/${selectedCategory.id}/${TodoID}`, {
@@ -205,7 +205,7 @@ function TodoList({ token, selectedCategory }) {
                   <></>
                 ) : (
                   <a
-                    onClick={() => handleStatusDone(todo.id)}
+                    onClick={(e) => handleStatusDone(todo.id, e)}
                     className="status-done-mark"
                   >
                     Hoàn thành <b style={{ color: "green" }}>&#10003;</b>{" "}
@@ -213,12 +213,40 @@ function TodoList({ token, selectedCategory }) {
                 )}
               </div>
             </span>
-            <button
-              className="delete-todo-button"
-              onClick={() => todo?.id && handleDeleteTodo(todo.id)}
-            >
-              x
-            </button>
+            <div className="delete-notes-button-container">
+              <button
+                className="delete-todo-button"
+                onClick={() => todo?.id && handleDeleteTodo(todo.id)}
+              >
+                x
+              </button>
+              <Link to={`/todos/notes/${todo.id}`}>
+                <svg
+                  className="notes-button"
+                  fill="#000000"
+                  viewBox="0 0 32 32"
+                  xmlns="http://www.w3.org/2000/svg"
+                  id="Layer_1"
+                  data-name="Layer 1"
+                >
+                  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                  <g
+                    id="SVGRepo_tracerCarrier"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  ></g>
+                  <g id="SVGRepo_iconCarrier">
+                    <path d="M6.97,30.75H25.03c.41,0,.75-.34,.75-.75V3.89c0-.41-.34-.75-.75-.75h-2.56v-1.14c0-.41-.34-.75-.75-.75s-.75,.34-.75,.75v1.14h-4.22v-1.14c0-.41-.34-.75-.75-.75s-.75,.34-.75,.75v1.14h-4.22v-1.14c0-.41-.34-.75-.75-.75s-.75,.34-.75,.75v1.14h-2.56c-.41,0-.75,.34-.75,.75V30c0,.41,.34,.75,.75,.75Zm.75-26.11h1.81v1.14c0,.41,.34,.75,.75,.75s.75-.34,.75-.75v-1.14h4.22v1.14c0,.41,.34,.75,.75,.75s.75-.34,.75-.75v-1.14h4.22v1.14c0,.41,.34,.75,.75,.75s.75-.34,.75-.75v-1.14h1.81V29.25H7.72V4.64Z"></path>
+                    <path d="M16.86,9.66h-6.57c-.41,0-.75,.34-.75,.75s.34,.75,.75,.75h6.57c.41,0,.75-.34,.75-.75s-.34-.75-.75-.75Z"></path>
+                    <path d="M16.86,16.19h-6.57c-.41,0-.75,.34-.75,.75s.34,.75,.75,.75h6.57c.41,0,.75-.34,.75-.75s-.34-.75-.75-.75Z"></path>
+                    <path d="M16.86,22.73h-6.57c-.41,0-.75,.34-.75,.75s.34,.75,.75,.75h6.57c.41,0,.75-.34,.75-.75s-.34-.75-.75-.75Z"></path>
+                    <path d="M10.28,14.27h3.61c.41,0,.75-.34,.75-.75s-.34-.75-.75-.75h-3.61c-.41,0-.75,.34-.75,.75s.34,.75,.75,.75Z"></path>
+                    <path d="M10.28,21h3.61c.41,0,.75-.34,.75-.75s-.34-.75-.75-.75h-3.61c-.41,0-.75,.34-.75,.75s.34,.75,.75,.75Z"></path>
+                    <path d="M13.89,25.79h-3.61c-.41,0-.75,.34-.75,.75s.34,.75,.75,.75h3.61c.41,0,.75-.34,.75-.75s-.34-.75-.75-.75Z"></path>
+                  </g>
+                </svg>
+              </Link>
+            </div>
           </li>
         ))}
       </ul>
