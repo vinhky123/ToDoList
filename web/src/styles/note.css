@@ -1,0 +1,71 @@
+/* Container chính */
+.editor-container {
+  max-width: 95%; /* Rộng gần hết màn hình */
+  margin: 20px auto;
+  padding: 20px;
+  background: #f4f7fa; /* Màu nền nhạt, hiện đại */
+}
+
+/* Nội dung editor */
+.editor-content {
+  background: transparent; /* Hòa vào nền container */
+  border: none; /* Không viền */
+  padding: 10px;
+  min-height: 400px; /* Cao hơn để thoải mái gõ */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 18px; /* Font lớn hơn, dễ đọc */
+  line-height: 1.7;
+  outline: none; /* Bỏ viền focus mặc định */
+  width: 100%; /* Chiếm hết chiều rộng container */
+  color: #1a1a1a !important;
+}
+
+/* Placeholder */
+.editor-content p.is-empty::before {
+  content: attr(data-placeholder);
+  color: #858383;
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Bubble Menu */
+.bubble-menu {
+  display: flex;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  gap: 6px;
+}
+
+/* Nút trong menu */
+.menu-button {
+  background: #eee;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.menu-button:hover {
+  background: #d5d5d5;
+}
+
+.menu-button.active {
+  background: #1e90ff; /* Màu xanh nổi bật */
+  color: #fff;
+}
+
+/* Định dạng văn bản trong editor */
+.editor-content p {
+  margin: 0 0 14px 0;
+}
+
+.editor-content ul {
+  margin: 0 0 14px 0;
+  padding-left: 20px;
+}
