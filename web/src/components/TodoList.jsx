@@ -139,7 +139,6 @@ function TodoList({ token, selectedCategory }) {
 
   const handleStatusDone = async (TodoID) => {
     try {
-      setLoading(true);
       await axios.put(
         `api/todos/${selectedCategory.id}/${TodoID}/done`,
         {},
@@ -155,10 +154,70 @@ function TodoList({ token, selectedCategory }) {
     } catch (error) {
       console.log(error);
       console.log("Có lỗi xảy ra, vui lòng thử lại");
-    } finally {
-      setLoading(false);
     }
   };
+
+  const handleNotificesStatus = async (TodoID) => {
+    try {
+      await axios.put(
+        `api/todos/${selectedCategory.id}/${TodoID}/putNotificate`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setTodos(
+        todos.map((todo) =>
+          todo.id === TodoID ? { ...todo, notificate: !todo.notificate } : todo
+        )
+      );
+    } catch (error) {
+      console.log(error);
+      console.log("Có lỗi xảy ra, vui lòng thử lại");
+    }
+  };
+
+  function GetNotificateStatusIcon({ notificate, todoID }) {
+    const handleClick = (event) => {
+      handleNotificesStatus(todoID);
+    };
+
+    return (
+      <svg
+        className="notificate-button"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        onClick={handleClick}
+      >
+        <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+        <g
+          id="SVGRepo_tracerCarrier"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        ></g>
+        <g id="SVGRepo_iconCarrier">
+          {notificate ? (
+            <path
+              d="M9.00195 17H5.60636C4.34793 17 3.71872 17 3.58633 16.9023C3.4376 16.7925 3.40126 16.7277 3.38515 16.5436C3.37082 16.3797 3.75646 15.7486 4.52776 14.4866C5.32411 13.1835 6.00031 11.2862 6.00031 8.6C6.00031 7.11479 6.63245 5.69041 7.75766 4.6402C8.88288 3.59 10.409 3 12.0003 3C13.5916 3 15.1177 3.59 16.2429 4.6402C17.3682 5.69041 18.0003 7.11479 18.0003 8.6C18.0003 11.2862 18.6765 13.1835 19.4729 14.4866C20.2441 15.7486 20.6298 16.3797 20.6155 16.5436C20.5994 16.7277 20.563 16.7925 20.4143 16.9023C20.2819 17 19.6527 17 18.3943 17H15.0003M9.00195 17L9.00031 18C9.00031 19.6569 10.3435 21 12.0003 21C13.6572 21 15.0003 19.6569 15.0003 18V17M9.00195 17H15.0003"
+              stroke="#000000"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            ></path>
+          ) : (
+            <path
+              d="M3 3L21 21M9.37747 3.56325C10.1871 3.19604 11.0827 3 12 3C13.5913 3 15.1174 3.59 16.2426 4.6402C17.3679 5.69041 18 7.11479 18 8.6C18 10.3566 18.2892 11.7759 18.712 12.9122M17 17H15M6.45339 6.46451C6.15686 7.13542 6 7.86016 6 8.6C6 11.2862 5.3238 13.1835 4.52745 14.4866C3.75616 15.7486 3.37051 16.3797 3.38485 16.5436C3.40095 16.7277 3.43729 16.7925 3.58603 16.9023C3.71841 17 4.34762 17 5.60605 17H9M9 17V18C9 19.6569 10.3431 21 12 21C13.6569 21 15 19.6569 15 18V17M9 17H15"
+              stroke="#000000"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            ></path>
+          )}
+        </g>
+      </svg>
+    );
+  }
 
   function todoList() {
     if (todos.length === 0)
@@ -246,6 +305,10 @@ function TodoList({ token, selectedCategory }) {
                   </g>
                 </svg>
               </Link>
+              <GetNotificateStatusIcon
+                notificate={todo.notificate}
+                todoID={todo.id}
+              />
             </div>
           </li>
         ))}

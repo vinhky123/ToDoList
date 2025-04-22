@@ -38,11 +38,9 @@ function App() {
 
   const checkTokenSession = async () => {
     try {
-      await axios.post(
-        `/api/auth/me`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await axios.post(`/api/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
     } catch (error) {
       console.log(error);
       if (error.status === 401) {
@@ -108,7 +106,10 @@ function App() {
                 }
               />
 
-              <Route path="/todos/notes/:Id" element={<NotesPage />} />
+              <Route
+                path="/todos/notes/:Id"
+                element={<NotesPage setLoading={setLoading} />}
+              />
               <Route
                 path="/"
                 element={

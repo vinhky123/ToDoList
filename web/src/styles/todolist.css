@@ -1,4 +1,3 @@
-/* todolist.css */
 .todo-list {
   flex: 1;
   padding: 20px;
@@ -139,12 +138,14 @@
   justify-content: space-around;
 }
 
-.notes-button {
+.notes-button,
+.notes-button:hover {
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.notes-button:hover {
+.notes-button:hover,
+.notificate-button:hover {
   background-color: rgb(221, 224, 226);
 }

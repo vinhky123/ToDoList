@@ -34,6 +34,7 @@ CREATE TABLE todos (
   completed BOOLEAN DEFAULT FALSE,
   category_id INTEGER,
   due_date TIMESTAMP,
+  notificate BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   priority VARCHAR(50) CHECK (priority IN ('low', 'medium', 'high')),
@@ -72,22 +73,6 @@ CREATE TABLE note_blocks (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Bảng notifications
-CREATE TABLE notifications (
-  id SERIAL PRIMARY KEY,
-  user_id INTEGER,
-  todos_id INTEGER,
-  type VARCHAR(50) NOT NULL DEFAULT 'email',
-  title VARCHAR(255) NOT NULL,
-  content TEXT NOT NULL,
-  status VARCHAR(20) NOT NULL DEFAULT 'pending',
-  scheduled_at TIMESTAMP,
-  sent_at TIMESTAMP,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (todos_id) REFERENCES todos(id) ON DELETE SET NULL
-);
 
 -- Chỉ mục cho bảng users
 CREATE INDEX idx_users_username ON users(username);

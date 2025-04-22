@@ -4,11 +4,11 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect } from "react";
 import "../styles/note.css";
 
-const NotePages = () => {
+const NotePages = (setLoading) => {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Placeholder.configure({ placeholder: "Gõ note của mày ở đây..." }),
+      Placeholder.configure({ placeholder: "Note vào đây nè" }),
     ],
     content: "",
     editorProps: {
@@ -19,17 +19,14 @@ const NotePages = () => {
   });
 
   const handleSaveNote = () => {
-    if (editor) {
-      const content = editor.getHTML();
-      console.log("Saving note:", content);
-    }
+    console.log("aaaaaaaa");
   };
 
   // Bắt sự kiện Ctrl+S
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.ctrlKey && event.key === "s") {
-        event.preventDefault(); // Ngăn hành vi mặc định của trình duyệt
+        event.preventDefault();
         handleSaveNote();
       }
     };

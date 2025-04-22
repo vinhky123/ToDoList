@@ -122,3 +122,39 @@ router.put("/:idCategory/:id/done", auth, async (req, res) => {
     res.status(500).json({ message: "Có lỗi khi đánh dấu là hoàn thành" });
   }
 });
+
+// Bật / tắt tính năng thông báo
+router.put("/:idCategory/:id/putNotificate", auth, async (req, res) => {
+  const userID = req.userId;
+  const idCategory = req.params.idCategory;
+  const id = req.params.id;
+  try {
+    const { rows: userCategories } = await req.db.query(
+      "SELECT user_id FROM categories WHERE id = $1",
+      [idCategory]
+    );
+    if (userCategories.length === 0 || userCategories[0].user_id != userID) {
+      return res
+        .status(403)
+        .json({ error: "Danh mục không thuộc về bạn hoặc không tồn tại" });
+    }
+
+    const { rows: current } = await req.db.query(
+      `SELECT notificate FROM todos WHERE id = $1`,
+      [id]
+    );
+
+    const currentStatus = current[0].notificate;
+    const targetStatus = !currentStatus;
+
+    const { rows } = await req.db.query(
+      "UPDATE todos SET notificate = $1 WHERE id = $2",
+      [targetStatus, id]
+    );
+
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Có lỗi khi đánh dấu là hoàn thành" });
+  }
+});

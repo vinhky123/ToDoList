@@ -73,11 +73,10 @@ router.get("/me", auth, async (req, res) => {
       "SELECT id, username, email, first_name, last_name FROM users WHERE id = $1",
       [req.userId]
     );
-    if (rows.length === 0) {
-      return res.status(404).json({ error: "Người dùng không tồn tại" });
-    }
+
     res.json(rows[0]);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Có lỗi khi lấy thông tin người dùng" });
   }
 });
